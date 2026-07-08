@@ -57,6 +57,7 @@ type PublicationItem = {
 	doi?: string;
 	url?: string;
 	urlLabel?: string;
+	links?: LinkItem[];
 };
 
 type MediaKind = 'podcast' | 'video' | 'news' | 'official' | 'outreach' | 'profile';
@@ -203,8 +204,10 @@ const mediaKindLabels: Record<MediaKind, string> = {
 	profile: 'Perfil',
 };
 
-const publicationNameSplitRegex = /(Becker,\s*M\.F\.|Moacir\s+Fonseca(?:[-\s])?Becker)/gi;
-const publicationNameMatchRegex = /^(Becker,\s*M\.F\.|Moacir\s+Fonseca(?:[-\s])?Becker)$/i;
+const publicationNameSplitRegex =
+	/(Becker,\s*M\.F\.|M\.\s+Fonseca\s+Becker|Moacir\s+Fonseca(?:[-\s])?Becker)/gi;
+const publicationNameMatchRegex =
+	/^(Becker,\s*M\.F\.|M\.\s+Fonseca\s+Becker|Moacir\s+Fonseca(?:[-\s])?Becker)$/i;
 
 const highlightPublicationName = (text: string) =>
 	text.split(publicationNameSplitRegex).filter(Boolean).map((segment) => ({
@@ -681,54 +684,72 @@ const skillAreaPayload = skillAreas.map((area) => ({
 const publications: PublicationItem[] = [
 	{
 		citation:
-			'[1] Becker, M.F., 2026. Virtual Thrust-Based Control Formulation for Multiple Kinetic Impactor Asteroid Deflection.',
-		venue:
-			'Accepted for oral presentation at the 27th International Symposium on Space Flight Dynamics (ISSFD 2026), Toulouse, France, June 1-5, 2026.',
+			'M. Fonseca Becker, K. Hernández Bandrich, N. E. May, S. M. Patwardhan, A. Massini, and A. Capannolo, 2026. Virtual Thrust-Based Control Formulation for Multiple Kinetic Impactor Asteroid Deflection.',
+		venue: '30th International Symposium on Space Flight Dynamics (ISSFD), Toulouse, France, 2026.',
+		links: [
+			{ label: 'Detalles', href: '/publications/virtual-thrust-issfd-2026/' },
+			{
+				label: 'PDF',
+				href: '/publications/virtual-thrust-issfd-2026/virtual-thrust-issfd-2026.pdf',
+			},
+		],
 	},
 	{
 		citation:
-			'[2] Schmitt, R.N., Becker, M.F., DeLaurentis, D., Capannolo, A., 2025. An Explainability-Based Framework for Evaluating Space Mission Architectures Using Sandbox Games.',
+			'A. Massini, N. E. May, M. Fonseca Becker, and A. Capannolo, 2026. Earth-Moon Orbit Design for a Rapid-Response Asteroid Interceptor System.',
+		venue: '30th International Symposium on Space Flight Dynamics (ISSFD), Toulouse, France, 2026.',
+		links: [
+			{ label: 'Detalles', href: '/publications/earth-moon-interceptor-issfd-2026/' },
+			{
+				label: 'PDF',
+				href: '/publications/earth-moon-interceptor-issfd-2026/earth-moon-interceptor-issfd-2026.pdf',
+			},
+		],
+	},
+	{
+		citation:
+			'Schmitt, R.N., Becker, M.F., DeLaurentis, D., Capannolo, A., 2025. An Explainability-Based Framework for Evaluating Space Mission Architectures Using Sandbox Games.',
 		venue: 'Aerotecnica Missili & Spazio, pp. 1-26.',
 		doi: '10.1007/s42496-025-00293-1',
 	},
 	{
 		citation:
-			'[3] Schmitt, R.N., Becker, M.F., DeLaurentis, D., Oguri, K., 2025. Design of Space Systems and Operational Mission Architectures Using Sandbox Games.',
+			'Schmitt, R.N., Becker, M.F., DeLaurentis, D., Oguri, K., 2025. Design of Space Systems and Operational Mission Architectures Using Sandbox Games.',
 		venue: 'Acta Astronautica.',
 		doi: '10.1016/j.actaastro.2025.04.004',
 	},
 	{
 		citation:
-			'[4] Becker, M.F., Reynel, G., Francisco, S., Mauricio, A., Eduardo, G., Fernando, Z., Luis, M., Carlos, A., Maria Jose, M., Oliver, S., 2022. Morazan Project Ground and Space Systems: Results of a Successful Preliminary Design for Space and Ground Segments, International Cooperation, Knowledge Transfer and Lessons Learned.',
+			'Becker, M.F., Reynel, G., Francisco, S., Mauricio, A., Eduardo, G., Fernando, Z., Luis, M., Carlos, A., Maria Jose, M., Oliver, S., 2022. Morazan Project Ground and Space Systems: Results of a Successful Preliminary Design for Space and Ground Segments, International Cooperation, Knowledge Transfer and Lessons Learned.',
 		venue: 'In: 73rd International Astronautical Congress, Paris.',
 		url: 'https://iafastro.directory/iac/paper/id/59527/summary/',
 		urlLabel: 'IAC summary',
 	},
 	{
 		citation:
-			'[5] Javier, M., Vilma, O., Eduardo, G., Fernando, Z., Becker, M.F., Luis, M., Carlos, A., Maria Jose, M., Oliver, S., 2020. Cabanas: First Honduran Academic Ground Station for small satellite missions.',
+			'Javier, M., Vilma, O., Eduardo, G., Fernando, Z., Becker, M.F., Luis, M., Carlos, A., Maria Jose, M., Oliver, S., 2020. Cabanas: First Honduran Academic Ground Station for small satellite missions.',
 		venue: 'In: 71st International Astronautical Congress.',
 		url: 'https://iafastro.directory/iac/paper/id/59527/summary/',
 		urlLabel: 'IAC summary',
 	},
 	{
 		citation:
-			'[6] Javier, M., Becker, M.F., Luis, M., Eduardo, G., Maria Jose, M., Oliver, S., Carlos E., A., Fernando, Z., 2020. Paving the way to the stars: Inclusion and education through space.',
+			'Javier, M., Becker, M.F., Luis, M., Eduardo, G., Maria Jose, M., Oliver, S., Carlos E., A., Fernando, Z., 2020. Paving the way to the stars: Inclusion and education through space.',
 		venue: 'In: International Astronautical Congress Cyberspace Edition. International Astronautical Federation.',
 	},
 	{
 		citation:
-			'[7] Becker, M.F., Aureliano, R., Alexander, O., Shirrel, A., Yanina, H., Rudiger, J., Olga, Z., Singh, P., Tiago, S., 2019. Space Station Concept for Active Debris Removal Applying EcoDesign Principles.',
+			'Becker, M.F., Aureliano, R., Alexander, O., Shirrel, A., Yanina, H., Rudiger, J., Olga, Z., Singh, P., Tiago, S., 2019. Space Station Concept for Active Debris Removal Applying EcoDesign Principles.',
 		venue: 'In: 70th International Astronautical Congress.',
 	},
 	{
 		citation:
-			'[8] Luis, M., Becker, M.F., Carlos E., A., Maria Jose, M., Fernando, Z., Javier, M., Eduardo, G., Oliver, S., 2019. Morazan MRZ-SAT CubeSat project for integration of the Central American Nations through collaboration in Space.',
+			'Luis, M., Becker, M.F., Carlos E., A., Maria Jose, M., Fernando, Z., Javier, M., Eduardo, G., Oliver, S., 2019. Morazan MRZ-SAT CubeSat project for integration of the Central American Nations through collaboration in Space.',
 		venue: 'In: 70th International Astronautical Congress. International Astronautical Federation.',
 	},
 	{
 		citation:
-			'[9] Becker, M.F., Nicole, C., Carlos, M., Renato, R., Ernesto, C., 2017. Analysis of scaled robotic arm manipulators under microgravity conditions.',
+			'Becker, M.F., Nicole, C., Carlos, M., Renato, R., Ernesto, C., 2017. Analysis of scaled robotic arm manipulators under microgravity conditions.',
 		venue: 'In: 68th International Astronautical Congress. Adelaide: International Astronautical Federation.',
 	},
 ];
@@ -1267,6 +1288,7 @@ const externalMediaCategories: MediaCategory[] = [
 						{
 							publications.map((item) => {
 								const parsedCitation = splitPublicationCitation(item.citation);
+								const links = item.links || [];
 								return (
 									<li class="publication-item">
 										<p class="publication-line">
@@ -1285,23 +1307,33 @@ const externalMediaCategories: MediaCategory[] = [
 												)}
 											</span>{' '}
 											<span class="publication-venue">{item.venue}</span>
-											{(item.doi || item.url) && (
+											{(item.doi || item.url || links.length > 0) && (
 												<span class="publication-links">
-													{' · '}
+													{' '}
+													Enlaces:{' '}
 													{item.doi && (
 														<>
 															DOI:{' '}
 															<a href={`https://doi.org/${item.doi}`} target="_blank" rel="noreferrer">
 																{item.doi}
 															</a>
-															{item.url && ' · '}
+															{(item.url || links.length > 0) && ' · '}
 														</>
 													)}
 													{item.url && (
-														<a href={item.url} target="_blank" rel="noreferrer">
-															{item.urlLabel || 'Enlace'}
-														</a>
+														<>
+															<a href={item.url} target="_blank" rel="noreferrer">
+																{item.urlLabel || 'Enlace'}
+															</a>
+															{links.length > 0 && ' · '}
+														</>
 													)}
+													{links.map((link, index) => (
+														<>
+															{index > 0 && ' · '}
+															<a href={link.href}>{link.label}</a>
+														</>
+													))}
 												</span>
 											)}
 										</p>

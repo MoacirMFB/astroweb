@@ -1,0 +1,26 @@
+---
+import PublicationPage from '../../../components/PublicationPage.astro';
+
+const title =
+	'Virtual Thrust-Based Control Formulation for Multiple Kinetic Impactor Asteroid Deflection';
+const pdfHref = '/publications/virtual-thrust-issfd-2026/virtual-thrust-issfd-2026.pdf';
+const abstractText =
+	'This paper introduces virtual thrust (VT), a continuous low-thrust control abstraction applied directly to asteroid deflection, as a way to design multiple-kinetic-impactor (MKI) campaigns. The method first solves a continuous VT optimal-control problem with sequential convex programming, then transcribes the resulting thrust profile into a set of dense impulses, and finally compiles those impulses into a finite impact campaign. Two VT cases are studied: one maximizes deflection for a fixed control budget, and the other minimizes the asteroid velocity change needed to reach a prescribed target deviation. The method is tested on an Apophis-style case with different lead times, impact speeds, cadence limits, and control authority levels. The compiled campaigns retain almost all of the continuous VT deflection. In the cases with a fixed budget, they also closely match a separate direct impulse allocation baseline. The minimum-Δv cases require only a modest number of extra impact opportunities. These results show that VT is a useful intermediate representation: it solves the deflection problem once as a continuous control problem, while the same VT profile can be recompiled into different effective MKI campaigns as mission assumptions change.';
+---
+
+<PublicationPage
+	title={title}
+	authors="Moacir Fonseca Becker; Karel Hernández Bandrich; Noelle Elisabeth May; Shivani Manoj Patwardhan; Alessandro Massini; Andrea Capannolo"
+	citationAuthors={[
+		'Fonseca Becker, Moacir',
+		'Hernández Bandrich, Karel',
+		'May, Noelle Elisabeth',
+		'Patwardhan, Shivani Manoj',
+		'Massini, Alessandro',
+		'Capannolo, Andrea',
+	]}
+	conferenceLine="In 30th International Symposium on Space Flight Dynamics (ISSFD), Toulouse, France, 1–5 June 2026."
+	abstractText={abstractText}
+	pdfHref={pdfHref}
+	pdfUrl={`https://moacir.space${pdfHref}`}
+/>

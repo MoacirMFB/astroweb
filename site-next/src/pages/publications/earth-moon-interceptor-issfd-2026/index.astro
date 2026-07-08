@@ -1,0 +1,24 @@
+---
+import PublicationPage from '../../../components/PublicationPage.astro';
+
+const title = 'Earth-Moon Orbit Design for a Rapid-Response Asteroid Interceptor System';
+const pdfHref =
+	'/publications/earth-moon-interceptor-issfd-2026/earth-moon-interceptor-issfd-2026.pdf';
+const abstractText =
+	'Potentially hazardous objects (PHOs) represent a significant natural threat to Earth, particularly in late-warning scenarios where detection occurs only months or a few years before a possible impact. Since conventional reactive missions may require several years, pre-deployed kinetic impactors on suitable Earth-Moon parking orbits offer a promising alternative, enabling rapid departure once a hazardous object is identified. This work investigates candidate periodic orbits in the Earth-Moon system and optimizes bi-impulsive escape transfers for such a pre-deployed impactor. The dynamics are modeled in the Circular Restricted Three-Body Problem, and escape trajectories are optimized and propagated up to a switching surface (SW). The resulting departure conditions are then patched with heliocentric transfers toward two fictitious PHOs, introduced as representative test cases. Patching is enforced in terms of epoch and outgoing velocity and position at the SW. Overall, the study assesses Earth-Moon parking orbits and bi-impulsive escape paths for pre-deployed kinetic impactors, highlighting trade-offs between departure efficiency, station-keeping cost, and reachability of representative fictitious PHAs under constrained time and propellant budgets.';
+---
+
+<PublicationPage
+	title={title}
+	authors="Alessandro Massini; Noelle Elisabeth May; Moacir Fonseca Becker; Andrea Capannolo"
+	citationAuthors={[
+		'Massini, Alessandro',
+		'May, Noelle Elisabeth',
+		'Fonseca Becker, Moacir',
+		'Capannolo, Andrea',
+	]}
+	conferenceLine="In 30th International Symposium on Space Flight Dynamics (ISSFD), Toulouse, France, 1–5 June 2026."
+	abstractText={abstractText}
+	pdfHref={pdfHref}
+	pdfUrl={`https://moacir.space${pdfHref}`}
+/>
