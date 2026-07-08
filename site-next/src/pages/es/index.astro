@@ -1286,12 +1286,13 @@ const externalMediaCategories: MediaCategory[] = [
 				</div>
 					<ol class="publication-list">
 						{
-							publications.map((item) => {
+							publications.map((item, index) => {
 								const parsedCitation = splitPublicationCitation(item.citation);
 								const links = item.links || [];
 								return (
 									<li class="publication-item">
 										<p class="publication-line">
+											<span class="publication-index">[{index + 1}]</span>{' '}
 											<span class="publication-citation">
 												<span class="publication-authors">
 													{highlightPublicationName(parsedCitation.authors).map((segment) =>
@@ -3860,9 +3861,9 @@ const externalMediaCategories: MediaCategory[] = [
 	}
 
 	.publication-list {
-		list-style: decimal;
+		list-style: none;
 		gap: 0.24rem;
-		padding-left: 1.15rem;
+		padding-left: 0;
 	}
 
 	.publication-item {
@@ -3873,6 +3874,11 @@ const externalMediaCategories: MediaCategory[] = [
 	.publication-line {
 		line-height: 1.4;
 		margin: 0;
+	}
+
+	.publication-index {
+		color: #9ecdf3;
+		font-weight: 800;
 	}
 
 	.publication-authors {
@@ -4168,6 +4174,7 @@ const externalMediaCategories: MediaCategory[] = [
 	:global(html[data-theme='light']) .gallery-label,
 	:global(html[data-theme='light']) .award-list a,
 	:global(html[data-theme='light']) .contact-grid a,
+	:global(html[data-theme='light']) .publication-index,
 	:global(html[data-theme='light']) .section-shell a {
 		color: #1d5fa7;
 	}
