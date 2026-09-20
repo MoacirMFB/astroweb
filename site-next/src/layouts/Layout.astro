@@ -1,62 +1,259 @@
 ---
+import SocialIcon from "../components/SocialIcon.astro";
+import CosmicBackdrop from "../components/CosmicBackdrop.astro";
+import "../styles/site.css";
 interface Props {
-	title?: string;
-	description?: string;
-	lang?: string;
+  title?: string;
+  description?: string;
+  lang?: string;
 }
-
 const {
-	title = 'Moacir Fonseca Becker',
-	description = 'Space-driven innovation, aerospace projects, and collaboration opportunities.',
-	lang = 'en',
+  title = "Moacir Fonseca Becker | Asteroid exploration & astrodynamics",
+  description = "Asteroid interception, exploration, and space mission design. Moacir Fonseca Becker, PhD student in Aeronautics and Astronautics at Purdue University.",
+  lang = "en",
 } = Astro.props;
+const es = lang === "es";
+const base = es ? "/es/" : "/";
+const current = Astro.url.pathname;
+const page = current.replace(/^\/es\/?/, "/");
+const alternate = es ? page : "/es" + current;
+const links = [
+  ["research", es ? "Investigación" : "Research"],
+  ["projects", es ? "Proyectos" : "Projects"],
+  ["about", es ? "Sobre mí" : "About"],
+  ["contact", es ? "Contacto" : "Contact"],
+];
 ---
 
 <!doctype html>
-<html lang={lang}>
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="shortcut icon" href="/favicon.svg" />
-		<meta name="generator" content={Astro.generator} />
-		<meta name="description" content={description} />
-		<title>{title}</title>
-		<slot name="head" />
-		<script is:inline>
-			(() => {
-				const storageKey = 'site-theme';
-				const root = document.documentElement;
-				let theme = 'dark';
+<html lang={lang} data-motion="off">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#080c11" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta
+      property="og:image"
+      content="https://moacir.space/space/bennu-spin.jpg"
+    />
+    <link rel="canonical" href={new URL(current, Astro.site)} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>{title}</title>
+    <slot name="head" />
+  </head>
+  <body>
+    <CosmicBackdrop lang={lang} progressive={page === "/"} />
+    <a class="skip-link" href="#main">
+      {es ? "Ir al contenido" : "Skip to content"}
+    </a>
+    <header class="site-header wrap">
+      <a class="brand" href={base} aria-label="Moacir Fonseca Becker, home">
+        <svg viewBox="0 0 44 44" aria-hidden="true">
+          <circle cx="22" cy="22" r="10" />
+          <ellipse
+            cx="22"
+            cy="22"
+            rx="21"
+            ry="7"
+            transform="rotate(-40 22 22)"
+          />
+          <circle class="brand-dot" cx="36" cy="10" r="3" />
+        </svg>
+        <span>
+          Moacir<span class="brand-surname">Fonseca Becker</span>
+        </span>
+      </a>
+      <nav
+        class="desktop-nav"
+        aria-label={es ? "Navegación principal" : "Main navigation"}
+      >
+        {links.map(([slug, label]) => (
+          <a
+            href={`${base}#${slug}`}
+            aria-current={page === `/${slug}/` ? "page" : undefined}
+          >
+            {label}
+          </a>
+        ))}
+      </nav>
+      <div class="header-actions">
+        {!current.startsWith("/publications/") && (
+          <a
+            class="language"
+            href={alternate}
+            lang={es ? "en" : "es"}
+            aria-label={es ? "English version" : "Versión en español"}
+          >
+            {es ? "EN" : "ES"}
+          </a>
+        )}
+        <a
+          class="cv-link"
+          href="https://drive.google.com/file/d/1vwPQEI_GvsCVWiBJQ5meD143yRfUaTRw/view?usp=sharing"
+        >
+          CV
+        </a>
+        <details class="mobile-menu">
+          <summary>
+            {es ? "Menú" : "Menu"} <span aria-hidden="true">+</span>
+          </summary>
+          <nav aria-label={es ? "Navegación móvil" : "Mobile navigation"}>
+            {links.map(([slug, label]) => (
+              <a
+                href={`${base}#${slug}`}
+                aria-current={page === `/${slug}/` ? "page" : undefined}
+              >
+                {label}
+              </a>
+            ))}
+          </nav>
+        </details>
+      </div>
+    </header>
+    <main id="main">
+      <slot />
+    </main>
+    <footer class="site-footer wrap">
+      <div class="footer-top">
+        <a href={base} class="footer-name">
+          Moacir Fonseca Becker
+        </a>
+        <div class="footer-social">
+          <a href="https://www.instagram.com/astro_moa/">
+            <SocialIcon name="instagram" />
+            Instagram
+          </a>
+          <a href="https://wa.me/50684365396">
+            <SocialIcon name="whatsapp" />
+            WhatsApp
+          </a>
+          <a href="https://www.linkedin.com/in/moacirfb/">
+            <SocialIcon name="linkedin" />
+            LinkedIn
+          </a>
+          <a href="https://www.researchgate.net/profile/Moacir-Fonseca-Becker">
+            <SocialIcon name="researchgate" />
+            ResearchGate
+          </a>
+          <a href="https://scholar.google.com/citations?hl=en&user=wc3XeSoAAAAJ">
+            <SocialIcon name="scholar" />
+            Google Scholar
+          </a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>
+          © {new Date().getFullYear()} ·{" "}
+          {es ? "West Lafayette, Indiana" : "West Lafayette, Indiana"}
+        </span>
 
-				try {
-					const savedTheme = localStorage.getItem(storageKey);
-					if (savedTheme === 'light' || savedTheme === 'dark') {
-						theme = savedTheme;
-					} else if (
-						window.matchMedia &&
-						window.matchMedia('(prefers-color-scheme: light)').matches
-					) {
-						theme = 'light';
-					}
-				} catch {
-					theme = 'dark';
-				}
-
-				root.dataset.theme = theme;
-			})();
-		</script>
-	</head>
-	<body>
-		<slot />
-	</body>
+        <a href="mailto:mfonsec@purdue.edu">
+          <SocialIcon name="email" />
+          mfonsec@purdue.edu
+        </a>
+      </div>
+    </footer>
+    <script>
+      const reduced = matchMedia("(prefers-reduced-motion: reduce)");
+      const videos = [
+        ...document.querySelectorAll<HTMLVideoElement>("[data-space-video]"),
+      ];
+      let paused = reduced.matches;
+      const visible = new Set<HTMLVideoElement>();
+      const stars = document.querySelector<HTMLElement>(".starfield");
+      const cosmicStages = [
+        ...document.querySelectorAll<HTMLElement>("[data-cosmic-stage]"),
+      ];
+      const cosmicTitle = document.querySelector<HTMLElement>("[data-cosmic-title]");
+      const cosmicDistance = document.querySelector<HTMLElement>("[data-cosmic-distance]");
+      const cosmicProgress = document.querySelector<HTMLElement>("[data-cosmic-progress]");
+      const stageCenters = [0, 0.2, 0.45, 0.7, 0.96];
+      let scrollFrame = 0;
+      function updateStars() {
+        scrollFrame = 0;
+        if (stars)
+          stars.style.transform = paused ? "none" : `translate3d(0, ${-((scrollY * 0.16) % 863)}px, 0)`;
+        if (!cosmicStages.length) return;
+        const maxScroll = Math.max(1, document.documentElement.scrollHeight - innerHeight);
+        const progress = Math.min(1, Math.max(0, scrollY / maxScroll));
+        let nearest = 0;
+        cosmicStages.forEach((stage, index) => {
+          const alpha = Math.max(0, 1 - Math.abs(progress - stageCenters[index]) / 0.26);
+          stage.style.opacity = String(alpha * 0.38);
+          stage.style.transform = `translateY(-50%) scale(${0.88 + alpha * 0.12})`;
+          if (Math.abs(progress - stageCenters[index]) < Math.abs(progress - stageCenters[nearest])) nearest = index;
+        });
+        if (cosmicTitle) cosmicTitle.textContent = cosmicStages[nearest].dataset.title || "";
+        if (cosmicDistance) cosmicDistance.textContent = cosmicStages[nearest].dataset.distance || "";
+        if (cosmicProgress) cosmicProgress.style.width = `${progress * 100}%`;
+      }
+      addEventListener(
+        "scroll",
+        () => {
+          if (!scrollFrame && !paused)
+            scrollFrame = requestAnimationFrame(updateStars);
+        },
+        { passive: true },
+      );
+      addEventListener("resize", updateStars, { passive: true });
+      document.querySelectorAll(".mobile-menu a").forEach((link) =>
+        link.addEventListener("click", () => {
+          link.closest("details")?.removeAttribute("open");
+        }),
+      );
+      function revealAnchor() {
+        const target = document.getElementById(
+          decodeURIComponent(location.hash.slice(1)),
+        );
+        if (!target) return;
+        let parent = target.parentElement;
+        let opened = false;
+        while (parent) {
+          if (parent instanceof HTMLDetailsElement && !parent.open) {
+            parent.open = true;
+            opened = true;
+          }
+          parent = parent.parentElement;
+        }
+        if (opened) target.scrollIntoView();
+      }
+      addEventListener("hashchange", revealAnchor);
+      revealAnchor();
+      function syncMotion() {
+        updateStars();
+        document.documentElement.dataset.motion = paused ? "off" : "on";
+        videos.forEach((video) => {
+          if (paused || document.hidden || !visible.has(video)) {
+            video.pause();
+            return;
+          }
+          if (!video.getAttribute("src")) video.src = video.dataset.src!;
+          video.play().catch(() => {
+            /* The poster remains available when autoplay is blocked. */
+          });
+        });
+      }
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) =>
+            entry.isIntersecting
+              ? visible.add(entry.target as HTMLVideoElement)
+              : visible.delete(entry.target as HTMLVideoElement),
+          );
+          syncMotion();
+        },
+        { threshold: 0.05 },
+      );
+      videos.forEach((video) => observer.observe(video));
+      reduced.addEventListener("change", () => {
+        paused = reduced.matches;
+        syncMotion();
+      });
+      document.addEventListener("visibilitychange", syncMotion);
+      syncMotion();
+    </script>
+  </body>
 </html>
-
-<style>
-	html,
-	body {
-		margin: 0;
-		width: 100%;
-		height: 100%;
-	}
-</style>

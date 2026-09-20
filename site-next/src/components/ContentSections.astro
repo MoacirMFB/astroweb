@@ -1,0 +1,525 @@
+---
+import mediaPreviews from "../data/media-previews.json";
+import SocialIcon from "./SocialIcon.astro";
+import SpaceVisual from "./SpaceVisual.astro";
+import OrbitDiagram from "./OrbitDiagram.astro";
+import NearEarthOrbits from "./NearEarthOrbits.astro";
+import SkillsWheel from "./SkillsWheel.astro";
+import * as enData from "../data/en";
+import * as esData from "../data/es";
+interface Props {
+  page: "research" | "projects" | "about" | "contact";
+  lang?: string;
+  embedded?: boolean;
+}
+const { page, lang = "en", embedded = false } = Astro.props;
+const es = lang === "es";
+const Heading = embedded ? "h2" : "h1";
+const base = es ? "/es/" : "/";
+const {
+  projects,
+  awards,
+  publications,
+  education,
+  leadership,
+  skillAreas,
+  externalMediaCategories,
+} = es ? esData : enData;
+const recentAwards = awards.slice(0, 3).map((award) => ({
+  ...award,
+  displayTitle: award.title.replace(/^\d{4}\s*-\s*/, ""),
+}));
+const projectCards = projects.map((project) => {
+  let preview = project.images?.[0]?.src;
+  if (!preview && project.video) {
+    const url = new URL(project.video.url);
+    const id =
+      url.hostname === "youtu.be"
+        ? url.pathname.slice(1)
+        : url.searchParams.get("v");
+    preview = `/projects/previews/${id}.jpg`;
+  }
+  let embedUrl;
+  if (project.video) {
+    const url = new URL(project.video.url);
+    const id =
+      url.hostname === "youtu.be"
+        ? url.pathname.slice(1)
+        : url.searchParams.get("v");
+    embedUrl =
+      url.hostname === "drive.google.com"
+        ? `https://drive.google.com/file/d/${url.pathname.split("/")[3]}/preview`
+        : `https://www.youtube-nocookie.com/embed/${id}?start=${project.video.start || 0}`;
+  }
+  return { ...project, preview, embedUrl };
+});
+const titles = {
+  research: es ? "Investigación" : "Research",
+  projects: es ? "Proyectos" : "Projects",
+  about: es ? "Sobre mí" : "About",
+  contact: es ? "Contacto" : "Contact",
+};
+const awardUrl =
+  "https://www.purdue.edu/newsroom/2026/Q3/innovative-solutions-abound-at-moonshot-pitch-challenge/";
+---
+
+<div class="wrap">
+  {page === "research" && (
+    <>
+      <header class="page-head">
+        <Heading>{titles.research}</Heading>
+      </header>
+      <section class="research-feature reverse" id="interception">
+        <OrbitDiagram lang={lang} />
+        <div>
+          <h2>{es ? "Intercepción de asteroides" : "Asteroid interception"}</h2>
+          <p>
+            {es
+              ? "Mi investigación se centra en el diseño de misiones de intercepción de asteroides, incluidas sus trayectorias y estrategias de control."
+              : "My research focuses on asteroid interception mission design, including trajectory design and control strategies."}
+          </p>
+          <a
+            class="text-link"
+            href="/publications/earth-moon-interceptor-issfd-2026/"
+          >
+            {es ? "Investigación" : "Research paper"}
+          </a>
+        </div>
+      </section>
+      <section class="research-feature" id="exploration">
+        <div>
+          <h2>{es ? "Exploración de asteroides" : "Asteroid exploration"}</h2>
+          <p>
+            {es
+              ? "Estudio trayectorias, navegación óptica y diseño de misiones para llegar a cuerpos pequeños y operar cerca de ellos."
+              : "I study trajectories, optical navigation, and mission design for reaching and operating near small bodies."}
+          </p>
+          <a class="text-link" href={`${base}#projects`}>
+            {es ? "Proyectos" : "Related projects"}
+          </a>
+        </div>
+        <SpaceVisual variant="spin" lang={lang} />
+      </section>
+      <section class="research-feature reverse" id="near-earth-orbits">
+        <NearEarthOrbits lang={lang} />
+        <div>
+          <h2>{es ? "Entorno cercano a la Tierra" : "Near-Earth neighborhood"}</h2>
+          <p>
+            {es
+              ? "Cien órbitas ilustrativas que atraviesan el vecindario orbital de la Tierra."
+              : "One hundred illustrative asteroid paths crossing Earth’s orbital neighborhood."}
+          </p>
+        </div>
+      </section>
+      <section class="section" id="publications">
+        <div class="section-title">
+          <div>
+            <h2>{es ? "Publicaciones" : "Publications"}</h2>
+          </div>
+          <a
+            class="text-link"
+            href="https://scholar.google.com/citations?hl=en&user=wc3XeSoAAAAJ"
+          >
+            <SocialIcon name="scholar" />
+            Google Scholar
+          </a>
+        </div>
+        <details class="archive publication-archive">
+          <summary>
+            {es ? "Ver las 10 publicaciones" : "View all 10 publications"}
+          </summary>
+          <ol class="publication-list">
+            {publications.map((pub, i) => {
+              const split = pub.citation.match(/^(.*?\b\d{4}\.\s*)(.+)$/);
+              return (
+                <li>
+                  <span class="index">{String(i + 1).padStart(2, "0")}</span>
+                  <div>
+                    <h3>{split?.[2] || pub.citation}</h3>
+                    {split && <p>{split[1]}</p>}
+                    <p>{pub.venue}</p>
+                    <div class="links">
+                      {pub.links?.map((link) => (
+                        <a href={link.href}>{link.label} </a>
+                      ))}
+                      {pub.doi && (
+                        <a href={`https://doi.org/${pub.doi}`}>DOI </a>
+                      )}
+                      {pub.url && (
+                        <a href={pub.url}>{pub.urlLabel || "Read"} </a>
+                      )}
+                    </div>
+                  </div>
+                </li>
+              );
+            })}
+          </ol>
+        </details>
+      </section>
+    </>
+  )}
+  {page === "projects" && (
+    <>
+      <header class="page-head">
+        <Heading>{titles.projects}</Heading>
+      </header>
+      <div class="project-list">
+        {projectCards.map((project, index) => (
+          <details class="project-item" id={`project-${index + 1}`}>
+            <summary>
+              <img
+                class:list={[
+                  "project-cover",
+                  {
+                    "video-cover": !project.images?.length,
+                    "navigation-cover":
+                      project.preview?.endsWith("AAE590PET1.png"),
+                    "photo-cover": project.preview?.includes("Hexapod"),
+                  },
+                ]}
+                src={project.preview}
+                alt={project.images?.[0]?.alt || project.title}
+                loading="lazy"
+                width="640"
+                height="400"
+              />
+              <div class="project-card-heading">
+                <span class="index">{project.year}</span>
+                <h2>{project.title}</h2>
+                <span class="expand" aria-hidden="true">
+                  +
+                </span>
+              </div>
+            </summary>
+            <div class="project-detail">
+              {project.embedUrl && <iframe
+                class="project-video"
+                src={project.embedUrl}
+                title={`${project.title} — ${es ? "video" : "video demonstration"}`}
+                loading="lazy"
+                allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+                allowfullscreen
+                referrerpolicy="strict-origin-when-cross-origin"
+              ></iframe>}
+              <p>{project.summary}</p>
+              {project.highlights && (
+                <ul>
+                  {project.highlights.map((highlight) => (
+                    <li>{highlight}</li>
+                  ))}
+                </ul>
+              )}
+              {project.note && <p>{project.note}</p>}
+              <div class="links">
+                {project.links?.map((link) => (
+                  <a href={link.href}>{link.label} </a>
+                ))}
+                {project.video && (
+                  <a href={project.video.url}>
+                    {es ? "Ver demostración" : "Watch demonstration"}
+                  </a>
+                )}
+              </div>
+              {project.images && (
+                <div
+                  class="project-images"
+                  aria-label={es ? "Imágenes del proyecto" : "Project images"}
+                >
+                  {project.images.map((image) => (
+                    <a
+                      href={image.src}
+                      aria-label={`${es ? "Ampliar" : "Enlarge"}: ${image.alt}`}
+                    >
+                      <img
+                        src={image.src}
+                        alt={image.alt}
+                        loading="lazy"
+                        width="600"
+                        height="350"
+                      />
+                    </a>
+                  ))}
+                </div>
+              )}
+            </div>
+          </details>
+        ))}
+      </div>
+    </>
+  )}
+  {page === "about" && (
+    <>
+      {!embedded && (
+        <section class="bio section">
+          <div>
+            <Heading>{titles.about}</Heading>
+            <p>
+              {es
+                ? "Soy ingeniero y estudiante de doctorado en Aeronáutica y Astronáutica en Purdue University."
+                : "I’m an engineer and PhD student in Aeronautics and Astronautics at Purdue University."}
+            </p>
+            <p>
+              {es
+                ? "Mi trayectoria abarca robótica, experimentos en microgravedad y proyectos espaciales colaborativos en Centroamérica, incluido Morazán."
+                : "My work spans robotics, microgravity experiments, and collaborative space projects in Central America, including Morazán."}
+            </p>
+          </div>
+          <img
+            src="/profile/moacir-photo.jpg"
+            alt="Moacir Fonseca Becker"
+            width="600"
+            height="750"
+          />
+        </section>
+      )}
+      <details class="about-sections archive">
+        <summary>
+          {es
+            ? "Premios, formación y experiencia"
+            : "Awards, education & experience"}
+        </summary>
+        <section class="section" id="awards">
+          <div class="section-title">
+            <h2>{es ? "Reconocimientos" : "Recognition"}</h2>
+          </div>
+          <div class="award-row featured">
+            <span class="eyebrow">2026</span>
+            <div>
+              <h3>
+                <a href={awardUrl}>
+                  {es
+                    ? "Ganador del Moonshot Pitch Competition"
+                    : "Moonshot Pitch Competition Winner"}{" "}
+                </a>
+              </h3>
+              <p>
+                Sentinel Space ·{" "}
+                {es
+                  ? "Primer lugar, categoría Moonshot. Con Sidh Sikka."
+                  : "First place, Moonshot category. With Sidh Sikka."}
+              </p>
+            </div>
+          </div>
+          {recentAwards.map((award) => (
+            <div class="award-row">
+              <span class="eyebrow">{award.title.slice(0, 4)}</span>
+              <h3>
+                {award.href ? (
+                  <a href={award.href}>{award.displayTitle} </a>
+                ) : (
+                  award.displayTitle
+                )}
+              </h3>
+            </div>
+          ))}
+          <details class="archive">
+            <summary>
+              {es
+                ? "Reconocimientos anteriores"
+                : "Earlier awards & recognition"}
+            </summary>
+            <ul class="archive-list">
+              {awards.slice(3).map((award) => (
+                <li>
+                  {award.href ? (
+                    <a href={award.href}>{award.title} </a>
+                  ) : (
+                    award.title
+                  )}
+                </li>
+              ))}
+            </ul>
+          </details>
+        </section>
+        <section id="education">
+          <div class="section-title">
+            <h2>{es ? "Formación" : "Education"}</h2>
+          </div>
+          {education.map((item) => (
+            <div class="award-row">
+              <div class="institution-logo">
+                <img
+                  src={item.logoSrc}
+                  alt={item.logoAlt}
+                  width="160"
+                  height="100"
+                  loading="lazy"
+                />
+              </div>
+              <div>
+                <h3>
+                  <a href={item.href}>{item.institution} </a>
+                </h3>
+                {item.programs.map((program) => (
+                  <p>{program}</p>
+                ))}
+              </div>
+            </div>
+          ))}
+        </section>
+        <section class="section" id="leadership">
+          <div class="section-title">
+            <h2>{es ? "Divulgación" : "Outreach"}</h2>
+          </div>
+          <p>
+            {es
+              ? "Ofrezco charlas gratuitas sobre ingeniería aeroespacial y mi trayectoria a estudiantes de 15 a 18 años que cursan sus últimos años de secundaria."
+              : "I offer free talks about aerospace engineering and my career path to students aged 15–18 in their final years of high school."}
+          </p>
+          <a class="text-link" href={`${base}#contact`}>
+            {es ? "Organiza una charla" : "Arrange a student talk"}
+          </a>
+          <details class="archive" style="margin-top:30px">
+            <summary>
+              {es
+                ? "Liderazgo y participación comunitaria"
+                : "Leadership & community"}
+            </summary>
+            <ul class="archive-list">
+              {leadership.map((item) => (
+                <li>
+                  <h3>{item.title}</h3>
+                  {item.background.map((text) => (
+                    <p>{text}</p>
+                  ))}
+                  {item.links?.map((link) => (
+                    <a href={link.href}>{link.label} </a>
+                  ))}
+                </li>
+              ))}
+            </ul>
+          </details>
+          <details class="archive" id="media-interviews">
+            <summary>
+              {es
+                ? "Entrevistas, noticias y charlas"
+                : "Interviews, news & talks"}
+            </summary>
+            {externalMediaCategories.map((category) => (
+              <div class="media-category">
+                <h3>{category.title}</h3>
+                <ul class="media-grid">
+                  {category.links.map((link) => {
+                    const url = new URL(link.href);
+                    const youtube = url.hostname.includes("youtube.com")
+                      ? url.searchParams.get("v")
+                      : null;
+                    const preview =
+                      mediaPreviews[link.href] ||
+                      link.previewImage ||
+                      (youtube
+                        ? `https://i.ytimg.com/vi/${youtube}/hqdefault.jpg`
+                        : null);
+                    return (
+                      <li class="media-card">
+                        <a href={link.href}>
+                          {preview ? (
+                            <img
+                              class="media-cover"
+                              src={preview}
+                              alt=""
+                              loading="lazy"
+                              width="640"
+                              height="360"
+                            />
+                          ) : (
+                            <div class="media-cover media-publisher">
+                              <span aria-hidden="true">
+                                {link.kind === "podcast"
+                                  ? "◉"
+                                  : link.kind === "video"
+                                    ? "▷"
+                                    : "▤"}
+                              </span>
+                              <strong>{link.source}</strong>
+                            </div>
+                          )}
+                          <div class="media-card-copy">
+                            <span class="eyebrow">{link.source}</span>
+                            <h4>{link.title}</h4>
+                            <p>{link.description}</p>
+                          </div>
+                        </a>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            ))}
+          </details>
+        </section>
+        <section id="skills" style="padding-bottom:80px">
+          <div class="section-title">
+            <h2>{es ? "Herramientas y métodos" : "Tools & methods"}</h2>
+          </div>
+          <SkillsWheel areas={skillAreas} lang={lang} />
+        </section>
+      </details>
+    </>
+  )}
+  {page === "contact" && (
+    <>
+      <header class="page-head">
+        <Heading>{titles.contact}</Heading>
+      </header>
+      <div class="contact-page">
+        <section>
+          <p class="collaboration-invite">
+            {es
+              ? "Estoy abierto a colaborar en investigación y proyectos espaciales. También ofrezco charlas gratuitas sobre ingeniería aeroespacial a estudiantes de secundaria de 15 a 18 años."
+              : "I’m open to research collaborations and space projects. I also offer free talks about aerospace engineering for high school students aged 15–18."}
+          </p>
+          <a class="contact-email" href="mailto:mfonsec@purdue.edu">
+            <SocialIcon name="email" />
+            mfonsec@purdue.edu
+          </a>
+          <a class="text-link" href="mailto:moacirmabe@gmail.com">
+            <SocialIcon name="email" />
+            moacirmabe@gmail.com
+          </a>
+          <div class="contact-links">
+            <a href="https://www.linkedin.com/in/moacirfb/">
+              <SocialIcon name="linkedin" />
+              LinkedIn
+            </a>
+            <a href="https://www.researchgate.net/profile/Moacir-Fonseca-Becker">
+              <SocialIcon name="researchgate" />
+              ResearchGate
+            </a>
+            <a href="https://scholar.google.com/citations?hl=en&user=wc3XeSoAAAAJ">
+              <SocialIcon name="scholar" />
+              Google Scholar
+            </a>
+          </div>
+        </section>
+        <aside class="contact-notes">
+          <p class="eyebrow">{es ? "DESDE" : "BASED IN"}</p>
+          <h2>
+            West Lafayette,
+            <br />
+            Indiana.
+          </h2>
+          <p>
+            Purdue University
+            <br />
+            Aeronautics & Astronautics
+          </p>
+          <div class="links">
+            <a href="https://www.instagram.com/astro_moa/">
+              <SocialIcon name="instagram" />
+              Instagram
+            </a>
+            <a href="https://www.facebook.com/Moacirmabe">
+              <SocialIcon name="facebook" />
+              Facebook
+            </a>
+            <a href="https://wa.me/50684365396">
+              <SocialIcon name="whatsapp" />
+              WhatsApp
+            </a>
+          </div>
+        </aside>
+      </div>
+    </>
+  )}
+</div>

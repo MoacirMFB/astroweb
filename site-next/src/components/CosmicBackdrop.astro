@@ -1,0 +1,293 @@
+---
+const { lang = "en", progressive = false } = Astro.props;
+const es = lang === "es";
+const stages = [
+  [es ? "NUESTRO SOL" : "OUR SUN", es ? "diámetro · 1,39 millones km" : "diameter · 1.39 million km", "sun"],
+  [es ? "SISTEMA SOLAR" : "SOLAR SYSTEM", es ? "hasta Neptuno · 4,5 mil millones km" : "to Neptune · 4.5 billion km", "system"],
+  [es ? "VÍA LÁCTEA" : "MILKY WAY", es ? "~100.000 años luz" : "~100,000 light-years", "galaxy"],
+  [es ? "GRUPO LOCAL" : "LOCAL GROUP", es ? "~10 millones de años luz" : "~10 million light-years", "group"],
+  [es ? "UNIVERSO OBSERVABLE" : "OBSERVABLE UNIVERSE", es ? "~93 mil millones de años luz" : "~93 billion light-years", "universe"],
+] as const;
+
+let seed = 2718;
+const random = () => ((seed = (seed * 48271) % 2147483647) / 2147483647);
+const galaxyStars = Array.from({ length: 90 }, () => {
+  const angle = random() * Math.PI * 2;
+  const radius = Math.pow(random(), 0.62) * 245;
+  return {
+    x: 300 + Math.cos(angle) * radius,
+    y: 190 + Math.sin(angle) * radius * 0.38,
+    r: 0.35 + random() * 1.05,
+    opacity: 0.18 + random() * 0.62,
+  };
+});
+const spiralPaths = Array.from({ length: 4 }, (_, arm) => {
+  const points = Array.from({ length: 86 }, (_, i) => {
+    const t = i / 85 * Math.PI * 4.4;
+    const radius = 9 + t * 18;
+    const angle = t + arm * Math.PI / 2;
+    return `${(300 + Math.cos(angle) * radius).toFixed(1)},${(190 + Math.sin(angle) * radius * 0.38).toFixed(1)}`;
+  });
+  return `M${points.join(" L")}`;
+});
+const webNodes = Array.from({ length: 34 }, () => ({
+  x: 30 + random() * 540,
+  y: 25 + random() * 330,
+  r: 1 + random() * 2.2,
+}));
+const webLines = webNodes.flatMap((node, index) =>
+  webNodes.slice(index + 1).filter((other) => Math.hypot(node.x - other.x, node.y - other.y) < 125).slice(0, 3).map((other) => [node, other]),
+);
+---
+
+<div
+  class="cosmic-backdrop"
+  data-progressive={progressive ? "true" : "false"}
+  aria-hidden="true"
+>
+  <div class="starfield"></div>
+  {progressive && (
+    <>
+      <div class="cosmic-stage stage-sun" data-cosmic-stage data-title={stages[0][0]} data-distance={stages[0][1]}>
+        <div class="cosmic-sun"></div>
+      </div>
+      <div class="cosmic-stage stage-system" data-cosmic-stage data-title={stages[1][0]} data-distance={stages[1][1]}>
+        <svg viewBox="0 0 520 520">
+          <circle class="system-glow" cx="260" cy="260" r="58" />
+          {[38, 55, 72, 92, 122, 153, 186, 220].map((radius) => (
+            <circle class="system-orbit" cx="260" cy="260" r={radius} />
+          ))}
+          <circle class="system-sun" cx="260" cy="260" r="9" />
+          {[
+            [298, 260, 2], [233, 212, 2.5], [203, 304, 3], [346, 227, 2.5],
+            [161, 331, 4.5], [366, 367, 4], [80, 213, 3], [429, 120, 3],
+          ].map(([cx, cy, r]) => <circle class="system-planet" cx={cx} cy={cy} r={r} />)}
+        </svg>
+      </div>
+      <div class="cosmic-stage stage-galaxy" data-cosmic-stage data-title={stages[2][0]} data-distance={stages[2][1]}>
+        <svg viewBox="0 0 600 380">
+          <ellipse class="galaxy-halo" cx="300" cy="190" rx="270" ry="112" />
+          {spiralPaths.map((path) => <path class="galaxy-arm" d={path} />)}
+          {galaxyStars.map((star) => (
+            <circle class="galaxy-star" cx={star.x} cy={star.y} r={star.r} opacity={star.opacity} />
+          ))}
+          <ellipse class="galaxy-core" cx="300" cy="190" rx="34" ry="15" />
+        </svg>
+      </div>
+      <div class="cosmic-stage stage-group" data-cosmic-stage data-title={stages[3][0]} data-distance={stages[3][1]}>
+        <div class="group-galaxy galaxy-one"></div>
+        <div class="group-galaxy galaxy-two"></div>
+        <div class="group-galaxy galaxy-three"></div>
+        <div class="group-galaxy galaxy-four"></div>
+      </div>
+      <div class="cosmic-stage stage-universe" data-cosmic-stage data-title={stages[4][0]} data-distance={stages[4][1]}>
+        <svg viewBox="0 0 600 380">
+          {webLines.map(([from, to]) => (
+            <line class="web-line" x1={from.x} y1={from.y} x2={to.x} y2={to.y} />
+          ))}
+          {webNodes.map((node) => (
+            <circle class="web-node" cx={node.x} cy={node.y} r={node.r} />
+          ))}
+        </svg>
+      </div>
+      <div class="cosmic-scale">
+        <span>{es ? "ESCALA" : "SCALE"}</span>
+        <strong data-cosmic-title>{stages[0][0]}</strong>
+        <small data-cosmic-distance>{stages[0][1]}</small>
+        <i><b data-cosmic-progress></b></i>
+      </div>
+    </>
+  )}
+</div>
+
+<style>
+  .cosmic-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+    pointer-events: none;
+    background: radial-gradient(ellipse at 82% 18%, #12305255, transparent 48%);
+  }
+  .starfield {
+    position: absolute;
+    inset: -1000px 0;
+    background: url("/space/stars.svg") repeat center top / 1380px 863px;
+    filter: brightness(1.8) drop-shadow(0 0 2px #79baff88);
+    opacity: .96;
+    will-change: transform;
+  }
+  .cosmic-stage {
+    position: absolute;
+    top: 50%;
+    right: clamp(-130px, -4vw, -35px);
+    width: min(58vw, 760px);
+    aspect-ratio: 1;
+    opacity: 0;
+    transform: translateY(-50%) scale(.88);
+    transform-origin: center;
+    transition: opacity 650ms ease, transform 900ms cubic-bezier(.4, 0, .2, 1);
+    will-change: opacity, transform;
+  }
+  .stage-sun {
+    opacity: .34;
+  }
+  .cosmic-sun {
+    position: absolute;
+    inset: 26%;
+    border-radius: 50%;
+    background:
+      radial-gradient(circle at 37% 34%, #fffbe0 0 2%, #ffdf7b 12%, #f3a735 42%, #ad4c16 73%, transparent 74%),
+      repeating-radial-gradient(circle, #ffd36d 0 2px, #e48022 3px 6px);
+    box-shadow:
+      0 0 55px #ffbd4d99,
+      0 0 150px #f18f2c4d,
+      0 0 280px #c64d1738;
+    animation: cosmic-breathe 7s ease-in-out infinite;
+  }
+  .cosmic-stage svg {
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+  .system-orbit {
+    fill: none;
+    stroke: #a9d4ff;
+    stroke-width: .75;
+    opacity: .42;
+  }
+  .system-glow {
+    fill: #ffcf67;
+    opacity: .08;
+  }
+  .system-sun {
+    fill: #ffe29b;
+    filter: drop-shadow(0 0 12px #ffbd4d);
+  }
+  .system-planet {
+    fill: #9dceff;
+    filter: drop-shadow(0 0 4px #79baff);
+  }
+  .galaxy-halo {
+    fill: #79baff0c;
+    stroke: #79baff25;
+    stroke-width: 1;
+  }
+  .galaxy-arm {
+    fill: none;
+    stroke: #a7d3ff;
+    stroke-width: 5;
+    opacity: .2;
+    filter: blur(2px);
+  }
+  .galaxy-star {
+    fill: #dceeff;
+  }
+  .galaxy-core {
+    fill: #fff2bd;
+    opacity: .82;
+    filter: blur(5px) drop-shadow(0 0 25px #79baff);
+  }
+  .stage-galaxy svg {
+    animation: galaxy-drift 70s linear infinite;
+  }
+  .stage-group {
+    filter: drop-shadow(0 0 24px #79baff22);
+  }
+  .group-galaxy {
+    position: absolute;
+    width: 34%;
+    height: 13%;
+    border: 1px solid #a8d3ff55;
+    border-radius: 50%;
+    background: radial-gradient(ellipse, #fff3c9 0 3%, #79baff66 8%, #79baff20 28%, transparent 66%);
+    box-shadow: 0 0 34px #79baff1f inset;
+  }
+  .galaxy-one { left: 14%; top: 34%; transform: rotate(-18deg); }
+  .galaxy-two { right: 8%; top: 24%; width: 42%; transform: rotate(22deg); }
+  .galaxy-three { left: 43%; bottom: 23%; width: 24%; transform: rotate(-42deg); }
+  .galaxy-four { left: 8%; bottom: 20%; width: 15%; opacity: .66; transform: rotate(15deg); }
+  .web-line {
+    stroke: #79baff;
+    stroke-width: .7;
+    opacity: .21;
+  }
+  .web-node {
+    fill: #c7e4ff;
+    opacity: .62;
+    filter: drop-shadow(0 0 4px #79baff);
+  }
+  .stage-universe svg {
+    filter: drop-shadow(0 0 14px #79baff20);
+  }
+  .cosmic-scale {
+    position: absolute;
+    right: 34px;
+    bottom: 28px;
+    display: grid;
+    grid-template-columns: auto auto;
+    gap: 3px 15px;
+    width: min(310px, calc(100vw - 68px));
+    color: #8e9eb0;
+    font-family: ui-monospace, monospace;
+    font-size: 8px;
+    letter-spacing: .13em;
+    text-transform: uppercase;
+    opacity: .74;
+  }
+  .cosmic-scale > span {
+    grid-row: 1 / 3;
+    color: #79baff;
+  }
+  .cosmic-scale strong {
+    color: #dceeff;
+    font-weight: 500;
+  }
+  .cosmic-scale small {
+    font-size: inherit;
+  }
+  .cosmic-scale i {
+    grid-column: 1 / -1;
+    height: 1px;
+    margin-top: 7px;
+    background: #ffffff20;
+  }
+  .cosmic-scale b {
+    display: block;
+    width: 0;
+    height: 1px;
+    background: #79baff;
+    box-shadow: 0 0 8px #79baff;
+  }
+  @keyframes cosmic-breathe {
+    50% { transform: scale(1.025); filter: brightness(1.08); }
+  }
+  @keyframes galaxy-drift {
+    to { transform: rotate(360deg); }
+  }
+  @media (max-width: 760px) {
+    .starfield {
+      background-size: 1000px 625px;
+    }
+    .cosmic-stage {
+      right: -32vw;
+      width: 105vw;
+      opacity: .18;
+    }
+    .cosmic-scale {
+      right: 18px;
+      bottom: 15px;
+      width: min(270px, calc(100vw - 36px));
+      opacity: .6;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .starfield {
+      transform: none !important;
+      will-change: auto;
+    }
+    .cosmic-stage {
+      transition: none;
+    }
+  }
+</style>

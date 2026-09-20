@@ -1,0 +1,14 @@
+---
+import ContentPage from "../components/ContentPage.astro";
+export function getStaticPaths() {
+  return ["en", "es"].flatMap((lang) =>
+    ["research", "projects", "about", "contact"].map((page) => ({
+      params: { page: `${lang === "es" ? "es/" : ""}${page}` },
+      props: { page, lang },
+    })),
+  );
+}
+const { page, lang } = Astro.props;
+---
+
+<ContentPage page={page} lang={lang} />

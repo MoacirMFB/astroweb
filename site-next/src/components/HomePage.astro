@@ -1,0 +1,93 @@
+---
+import Layout from "../layouts/Layout.astro";
+import ContentSections from "./ContentSections.astro";
+import SolarSystemNow from "./SolarSystemNow.astro";
+const { lang = "en" } = Astro.props;
+const es = lang === "es";
+const hobbies = es
+  ? [
+      "Cocina",
+      "Escalada",
+      "Bodyboard",
+      "Batería",
+      "Buceo",
+      "Calistenia",
+      "Natación",
+      "Aprender a volar avionetas",
+    ]
+  : [
+      "Cooking",
+      "Climbing",
+      "Bodyboarding",
+      "Drumming",
+      "Scuba diving",
+      "Calisthenics",
+      "Swimming",
+      "Learning to fly small aircraft",
+    ];
+---
+
+<Layout lang={lang}>
+  <div class="scroll-home">
+    <section class="hero wrap" id="home">
+      <div class="hero-copy">
+        <p class="eyebrow">MOACIR FONSECA BECKER</p>
+        <h1>
+          Hi, Hello,
+          <br />
+          <em>Olá,</em>
+        </h1>
+        <p class="hero-intro">
+          {es
+            ? "Soy Moacir, estudiante de doctorado en Purdue con pasión por la exploración espacial."
+            : "I’m Moacir, a PhD student at Purdue with a passion for space exploration."}
+        </p>
+        <div class="hero-actions">
+          <a class="button primary" href="#projects">
+            {es ? "Mi trabajo" : "My work"} <span aria-hidden="true">↓</span>
+          </a>
+        </div>
+      </div>
+      <img
+        class="hero-portrait"
+        src="/profile/moacir-photo.jpg"
+        alt="Moacir Fonseca Becker"
+        width="600"
+        height="750"
+        fetchpriority="high"
+      />
+      <div class="hero-about" id="about">
+        <SolarSystemNow lang={lang} />
+        <div class="hero-about-copy">
+          <p>
+            {es
+              ? "Soy ingeniero y estudiante de doctorado en Aeronáutica y Astronáutica en Purdue. Mi trayectoria abarca astrodinámica, robótica, experimentos en microgravedad y proyectos espaciales colaborativos en Centroamérica."
+              : "I’m an engineer and PhD student in Aeronautics and Astronautics at Purdue. My work spans astrodynamics, robotics, microgravity experiments, and collaborative space projects across Central America."}
+          </p>
+          <div
+            class="hobbies"
+            aria-label={es ? "Fuera de lo nerd" : "Outside the nerdy stuff"}
+          >
+            <span>{es ? "FUERA DE LO NERD" : "OUTSIDE THE NERDY STUFF"}</span>
+            <ul>
+              {hobbies.map((hobby) => <li>{hobby}</li>)}
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section id="research" class="scroll-section">
+      <ContentSections page="research" lang={lang} embedded />
+    </section>
+    <section id="projects" class="scroll-section">
+      <span id="portfolio"></span>
+      <ContentSections page="projects" lang={lang} embedded />
+    </section>
+    <section id="experience" class="scroll-section">
+      <ContentSections page="about" lang={lang} embedded />
+    </section>
+    <section id="contact" class="scroll-section">
+      <ContentSections page="contact" lang={lang} embedded />
+    </section>
+  </div>
+</Layout>

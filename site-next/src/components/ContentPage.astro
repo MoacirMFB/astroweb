@@ -1,0 +1,23 @@
+---
+import Layout from "../layouts/Layout.astro";
+import ContentSections from "./ContentSections.astro";
+const { page, lang = "en" } = Astro.props;
+const titles =
+  lang === "es"
+    ? {
+        research: "Investigación",
+        projects: "Proyectos",
+        about: "Sobre mí",
+        contact: "Contacto",
+      }
+    : {
+        research: "Research",
+        projects: "Projects",
+        about: "About",
+        contact: "Contact",
+      };
+---
+
+<Layout title={`${titles[page]} | Moacir Fonseca Becker`} lang={lang}>
+  <ContentSections page={page} lang={lang} />
+</Layout>

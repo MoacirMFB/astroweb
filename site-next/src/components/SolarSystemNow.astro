@@ -1,0 +1,208 @@
+---
+const { lang = "en" } = Astro.props;
+const es = lang === "es";
+const planets = [
+  ["mercury", es ? "Mercurio" : "Mercury", "#b7b8bd", 46],
+  ["venus", es ? "Venus" : "Venus", "#e5c58a", 58],
+  ["earth", es ? "Tierra" : "Earth", "#79baff", 68],
+  ["mars", es ? "Marte" : "Mars", "#d77a5e", 80],
+  ["jupiter", es ? "Júpiter" : "Jupiter", "#d9b38c", 110],
+  ["saturn", es ? "Saturno" : "Saturn", "#d8c58d", 133],
+  ["uranus", es ? "Urano" : "Uranus", "#89d5de", 158],
+  ["neptune", es ? "Neptuno" : "Neptune", "#7196ff", 177],
+] as const;
+---
+
+<figure
+  class="solar-now"
+  data-solar-system
+  data-locale={es ? "es" : "en"}
+  aria-label={
+    es
+      ? "Posiciones heliocéntricas actuales aproximadas de los ocho planetas"
+      : "Approximate current heliocentric positions of the eight planets"
+  }
+>
+  <svg viewBox="0 0 420 420" role="img" aria-hidden="true">
+    <defs>
+      <radialGradient id="live-sun" cx="40%" cy="38%">
+        <stop stop-color="#fff" />
+        <stop offset=".35" stop-color="#fff0b5" />
+        <stop offset="1" stop-color="#eab85d" />
+      </radialGradient>
+      <radialGradient id="live-glow">
+        <stop stop-color="#79baff" stop-opacity=".2" />
+        <stop offset="1" stop-color="#79baff" stop-opacity="0" />
+      </radialGradient>
+    </defs>
+    <circle class="solar-halo" cx="210" cy="210" r="38" fill="url(#live-glow)" />
+    {planets.map(([id, name, color, orbit]) => (
+      <circle class="solar-orbit" cx="210" cy="210" r={orbit} />
+    ))}
+    <path class="solar-sweep" d="M210 210L210 28" />
+    <circle class="solar-sun" cx="210" cy="210" r="8" fill="url(#live-sun)" />
+    {planets.map(([id, name, color]) => (
+      <g class="solar-planet" data-planet={id} style={`--planet: ${color}`}>
+        <circle class="solar-planet-glow" r="7" />
+        <circle class="solar-planet-dot" r={id === "jupiter" ? 3.8 : id === "saturn" ? 3.3 : 2.7} />
+        <text y="-7">{name}</text>
+      </g>
+    ))}
+  </svg>
+  <figcaption>
+    <span>{es ? "SISTEMA SOLAR · AHORA" : "SOLAR SYSTEM · NOW"}</span>
+    <time data-solar-time></time>
+  </figcaption>
+</figure>
+
+<script>
+  const systems = document.querySelectorAll<HTMLElement>("[data-solar-system]");
+  const radians = Math.PI / 180;
+  const j2000 = Date.UTC(2000, 0, 1, 12);
+  const orbitalElements = [
+    ["mercury", 0.38709927, 0.00000037, 0.20563593, 0.00001906, 7.00497902, -0.00594749, 252.2503235, 149472.67411175, 77.45779628, 0.16047689, 48.33076593, -0.12534081, 46],
+    ["venus", 0.72333566, 0.0000039, 0.00677672, -0.00004107, 3.39467605, -0.0007889, 181.9790995, 58517.81538729, 131.60246718, 0.00268329, 76.67984255, -0.27769418, 58],
+    ["earth", 1.00000261, 0.00000562, 0.01671123, -0.00004392, -0.00001531, -0.01294668, 100.46457166, 35999.37244981, 102.93768193, 0.32327364, 0, 0, 68],
+    ["mars", 1.52371034, 0.00001847, 0.0933941, 0.00007882, 1.84969142, -0.00813131, -4.55343205, 19140.30268499, -23.94362959, 0.44441088, 49.55953891, -0.29257343, 80],
+    ["jupiter", 5.202887, -0.00011607, 0.04838624, -0.00013253, 1.30439695, -0.00183714, 34.39644051, 3034.74612775, 14.72847983, 0.21252668, 100.47390909, 0.20469106, 110],
+    ["saturn", 9.53667594, -0.0012506, 0.05386179, -0.00050991, 2.48599187, 0.00193609, 49.95424423, 1222.49362201, 92.59887831, -0.41897216, 113.66242448, -0.28867794, 133],
+    ["uranus", 19.18916464, -0.00196176, 0.04725744, -0.00004397, 0.77263783, -0.00242939, 313.23810451, 428.48202785, 170.9542763, 0.40805281, 74.01692503, 0.04240589, 158],
+    ["neptune", 30.06992276, 0.00026291, 0.00859048, 0.00005105, 1.77004347, 0.00035372, -55.12002969, 218.45945325, 44.96476227, -0.32241464, 131.78422574, -0.00508664, 177],
+  ] as const;
+
+  function position(element: (typeof orbitalElements)[number], now: number) {
+    const centuries = (now - j2000) / 86400000 / 36525;
+    const [, a0, aRate, e0, eRate, i0, iRate, l0, lRate, p0, pRate, n0, nRate] = element;
+    const a = a0 + aRate * centuries;
+    const e = e0 + eRate * centuries;
+    const inclination = (i0 + iRate * centuries) * radians;
+    const perihelion = (p0 + pRate * centuries) * radians;
+    const node = (n0 + nRate * centuries) * radians;
+    const meanAnomaly = ((((l0 + lRate * centuries) - (p0 + pRate * centuries)) % 360) + 360) % 360 * radians;
+    let eccentricAnomaly = meanAnomaly;
+    for (let step = 0; step < 7; step += 1)
+      eccentricAnomaly -= (eccentricAnomaly - e * Math.sin(eccentricAnomaly) - meanAnomaly) / (1 - e * Math.cos(eccentricAnomaly));
+    const px = a * (Math.cos(eccentricAnomaly) - e);
+    const py = a * Math.sqrt(1 - e * e) * Math.sin(eccentricAnomaly);
+    const argument = perihelion - node;
+    const x = (Math.cos(argument) * Math.cos(node) - Math.sin(argument) * Math.sin(node) * Math.cos(inclination)) * px
+      + (-Math.sin(argument) * Math.cos(node) - Math.cos(argument) * Math.sin(node) * Math.cos(inclination)) * py;
+    const y = (Math.cos(argument) * Math.sin(node) + Math.sin(argument) * Math.cos(node) * Math.cos(inclination)) * px
+      + (-Math.sin(argument) * Math.sin(node) + Math.cos(argument) * Math.cos(node) * Math.cos(inclination)) * py;
+    return { x, y, a };
+  }
+
+  function draw(system: HTMLElement) {
+    const now = Date.now();
+    orbitalElements.forEach((element) => {
+      const [id, , , , , , , , , , , , , orbit] = element;
+      const planet = system.querySelector<SVGGElement>(`[data-planet="${id}"]`);
+      if (!planet) return;
+      const point = position(element, now);
+      const x = 210 + orbit * point.x / point.a;
+      const y = 210 - orbit * point.y / point.a;
+      planet.setAttribute("transform", `translate(${x.toFixed(2)} ${y.toFixed(2)})`);
+      const label = planet.querySelector("text");
+      if (label) {
+        label.setAttribute("x", x < 210 ? "-6" : "6");
+        label.setAttribute("text-anchor", x < 210 ? "end" : "start");
+      }
+    });
+    const clock = system.querySelector<HTMLTimeElement>("[data-solar-time]");
+    if (clock) {
+      const date = new Date(now);
+      clock.dateTime = date.toISOString();
+      clock.textContent = new Intl.DateTimeFormat(system.dataset.locale === "es" ? "es" : "en", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        timeZone: "UTC",
+        timeZoneName: "short",
+      }).format(date);
+    }
+  }
+
+  const earth = position(orbitalElements[2], Date.now());
+  console.assert(Math.hypot(earth.x, earth.y) > 0.98 && Math.hypot(earth.x, earth.y) < 1.02, "Solar position calculation failed");
+  systems.forEach((system) => {
+    draw(system);
+    setInterval(() => draw(system), 60000);
+  });
+</script>
+
+<style>
+  .solar-now {
+    width: min(100%, 440px);
+    margin: -28px 0 0;
+  }
+  svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+  .solar-orbit {
+    fill: none;
+    stroke: #a9d4ff4a;
+    stroke-width: .95;
+  }
+  .solar-halo,
+  .solar-sun {
+    transform-origin: 210px 210px;
+    animation: solar-pulse 4.8s ease-in-out infinite;
+  }
+  .solar-sweep {
+    fill: none;
+    stroke: #79baff;
+    stroke-width: .6;
+    stroke-dasharray: 2 6;
+    opacity: .23;
+    transform-origin: 210px 210px;
+    animation: solar-sweep 22s linear infinite;
+  }
+  .solar-planet-dot {
+    fill: var(--planet);
+  }
+  .solar-planet-glow {
+    fill: var(--planet);
+    opacity: .13;
+    animation: planet-pulse 3.6s ease-in-out infinite;
+  }
+  text {
+    fill: #aab4c0;
+    font-family: ui-monospace, monospace;
+    font-size: 7px;
+    letter-spacing: .04em;
+  }
+  figcaption {
+    display: flex;
+    justify-content: space-between;
+    gap: 18px;
+    margin-top: -12px;
+    color: #8290a0;
+    font-family: ui-monospace, monospace;
+    font-size: 8px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+  }
+  figcaption > span {
+    color: #79baff;
+  }
+  @keyframes solar-pulse {
+    50% { transform: scale(1.13); opacity: .82; }
+  }
+  @keyframes solar-sweep {
+    to { transform: rotate(360deg); }
+  }
+  @keyframes planet-pulse {
+    50% { transform: scale(1.45); opacity: .05; }
+  }
+  @media (max-width: 760px) {
+    .solar-now {
+      width: min(100%, 390px);
+      margin: 0 auto 18px;
+    }
+  }
+</style>

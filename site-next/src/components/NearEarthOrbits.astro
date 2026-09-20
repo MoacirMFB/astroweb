@@ -1,0 +1,171 @@
+---
+const { lang = "en" } = Astro.props;
+const es = lang === "es";
+let seed = 2049;
+const random = () => ((seed = (seed * 48271) % 2147483647) / 2147483647);
+const colors = ["#79baff", "#73ded0", "#9b8cff", "#d7eaff"];
+const scale = 88;
+const orbits: Array<{
+  cx: number;
+  rx: number;
+  ry: number;
+  angle: number;
+  color: string;
+  opacity: number;
+  width: number;
+}> = [];
+
+while (orbits.length < 100) {
+  const a = 0.75 + random() * 1.3;
+  const e = 0.08 + random() * 0.45;
+  const perihelion = a * (1 - e);
+  const aphelion = a * (1 + e);
+  if (perihelion > 1.3 || aphelion < 0.8) continue;
+  const inclination = random() * 28 * Math.PI / 180;
+  orbits.push({
+    cx: -a * e * scale,
+    rx: a * scale,
+    ry: a * Math.sqrt(1 - e * e) * scale * (0.82 + 0.18 * Math.cos(inclination)),
+    angle: random() * 360,
+    color: colors[Math.floor(random() * colors.length)],
+    opacity: 0.12 + random() * 0.2,
+    width: 0.35 + random() * 0.45,
+  });
+}
+---
+
+<figure
+  class="near-earth-orbits"
+  aria-label={
+    es
+      ? "Cien órbitas ilustrativas de asteroides cercanos a la órbita terrestre"
+      : "One hundred illustrative asteroid orbits near Earth’s orbit"
+  }
+>
+  <svg viewBox="0 0 620 420" role="img" aria-hidden="true">
+    <defs>
+      <radialGradient id="nea-sun" cx="38%" cy="35%">
+        <stop stop-color="#fff" />
+        <stop offset=".38" stop-color="#ffedaf" />
+        <stop offset="1" stop-color="#d99f48" />
+      </radialGradient>
+      <radialGradient id="nea-space">
+        <stop stop-color="#14253a" stop-opacity=".72" />
+        <stop offset="1" stop-color="#080d14" stop-opacity="0" />
+      </radialGradient>
+      <linearGradient id="nea-scan" x1="0" x2="1">
+        <stop stop-color="#79baff" stop-opacity="0" />
+        <stop offset="1" stop-color="#79baff" stop-opacity=".34" />
+      </linearGradient>
+    </defs>
+    <circle cx="310" cy="210" r="205" fill="url(#nea-space)" />
+    <g class="orbit-cloud">
+      {orbits.map((orbit) => (
+        <ellipse
+          class="nea-orbit"
+          cx={310 + orbit.cx}
+          cy="210"
+          rx={orbit.rx}
+          ry={orbit.ry}
+          transform={`rotate(${orbit.angle} 310 210)`}
+          style={`--orbit-color:${orbit.color};--orbit-opacity:${orbit.opacity};--orbit-width:${orbit.width}`}
+        />
+      ))}
+    </g>
+    <circle class="earth-orbit" cx="310" cy="210" r={scale} />
+    <path class="orbit-scan" d="M310 210L310 44" />
+    <circle class="nea-sun-glow" cx="310" cy="210" r="28" />
+    <circle class="nea-sun" cx="310" cy="210" r="7" fill="url(#nea-sun)" />
+    <circle class="earth-glow" cx={310 + scale} cy="210" r="9" />
+    <circle class="earth" cx={310 + scale} cy="210" r="3.5" />
+    <text x={310 + scale + 9} y="207">{es ? "TIERRA" : "EARTH"}</text>
+  </svg>
+  <figcaption>
+    <span>{es ? "ÓRBITAS CERCANAS A LA TIERRA" : "NEAR-EARTH ORBITS"}</span>
+    <span>{es ? "100 TRAYECTORIAS ILUSTRATIVAS" : "100 ILLUSTRATIVE PATHS"}</span>
+  </figcaption>
+</figure>
+
+<style>
+  .near-earth-orbits {
+    width: 100%;
+    margin: 0;
+    padding: 16px 18px 13px;
+    overflow: hidden;
+    border: 1px solid #9dccff3b;
+    border-radius: 18px;
+    background: #09111c9e;
+  }
+  svg {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  .nea-orbit {
+    fill: none;
+    stroke: var(--orbit-color);
+    stroke-width: var(--orbit-width);
+    opacity: var(--orbit-opacity);
+  }
+  .earth-orbit {
+    fill: none;
+    stroke: #c2e2ff;
+    stroke-width: 1.15;
+    stroke-dasharray: 3 5;
+    opacity: .82;
+  }
+  .orbit-scan {
+    stroke: url(#nea-scan);
+    stroke-width: 1;
+    transform-origin: 310px 210px;
+    animation: orbit-scan 24s linear infinite;
+  }
+  .nea-sun-glow,
+  .earth-glow {
+    fill: #79baff;
+    opacity: .09;
+    animation: orbit-pulse 4.8s ease-in-out infinite;
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+  .nea-sun {
+    filter: drop-shadow(0 0 7px #ffd88988);
+  }
+  .earth {
+    fill: #a8dcff;
+    filter: drop-shadow(0 0 5px #79baff);
+  }
+  text {
+    fill: #cce7ff;
+    font-family: ui-monospace, monospace;
+    font-size: 7px;
+    letter-spacing: .1em;
+  }
+  figcaption {
+    display: flex;
+    justify-content: space-between;
+    gap: 18px;
+    color: #91a2b4;
+    font-family: ui-monospace, monospace;
+    font-size: 8px;
+    letter-spacing: .12em;
+  }
+  figcaption > span:first-child {
+    color: #79baff;
+  }
+  @keyframes orbit-scan {
+    to { transform: rotate(360deg); }
+  }
+  @keyframes orbit-pulse {
+    50% { transform: scale(1.35); opacity: .04; }
+  }
+  @media (max-width: 760px) {
+    .near-earth-orbits {
+      padding-inline: 8px;
+    }
+    figcaption {
+      padding-inline: 8px;
+      font-size: 7px;
+    }
+  }
+</style>

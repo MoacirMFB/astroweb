@@ -1,0 +1,50 @@
+---
+interface Props {
+  variant?: "spin" | "light";
+  lang?: string;
+}
+const { variant = "spin", lang = "en" } = Astro.props;
+const es = lang === "es";
+---
+
+<figure
+  class:list={["space-visual", variant]}
+  aria-label={
+    es ? "Visualización del asteroide Bennu" : "Visualization of asteroid Bennu"
+  }
+>
+  <div class="asteroid-stage">
+    <video
+      aria-hidden="true"
+      data-space-video
+      data-src={`/space/bennu-${variant}.mp4`}
+      poster={`/space/bennu-${variant}.jpg`}
+      muted
+      loop
+      playsinline
+      preload="none"
+      aria-label={
+        es
+          ? "Visualización de la superficie rocosa del asteroide Bennu"
+          : "Visualization of asteroid Bennu’s rocky surface"
+      }
+    ></video>
+    <span class="target-cross cross-one" aria-hidden="true">
+      +
+    </span>
+    <span class="target-cross cross-two" aria-hidden="true">
+      +
+    </span>
+    <div class="object-label">
+      <span class="status-dot"></span>101955 BENNU
+      <span class="object-subtitle">
+        {es ? "ASTEROIDE CERCANO A LA TIERRA" : "NEAR-EARTH ASTEROID"}
+      </span>
+    </div>
+  </div>
+  <figcaption>
+    <a href="https://svs.gsfc.nasa.gov/4857/">
+      {es ? "Visualización" : "Visualization"}: NASA SVS
+    </a>
+  </figcaption>
+</figure>

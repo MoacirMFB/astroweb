@@ -1,0 +1,182 @@
+---
+interface SkillArea {
+  key: string;
+  label: string;
+  shortLabel: string;
+  description: string;
+  skills: string[];
+}
+
+interface Props {
+  areas: SkillArea[];
+  lang?: string;
+}
+
+const { areas, lang = "en" } = Astro.props;
+const palette = ["#8fc8ff", "#6aafea", "#4d94cf", "#377aad", "#285d87"];
+const wheelAreas = areas.map((area, index) => ({
+  ...area,
+  color: palette[index % palette.length],
+}));
+const total = wheelAreas.reduce((sum, area) => sum + area.skills.length, 0);
+const center = 200;
+const innerRadius = 92;
+const outerRadius = 184;
+
+const point = (radius: number, angle: number) => {
+  const radians = ((angle - 90) * Math.PI) / 180;
+  return {
+    x: center + radius * Math.cos(radians),
+    y: center + radius * Math.sin(radians),
+  };
+};
+
+const sectorPath = (start: number, end: number) => {
+  const outerStart = point(outerRadius, start);
+  const outerEnd = point(outerRadius, end);
+  const innerEnd = point(innerRadius, end);
+  const innerStart = point(innerRadius, start);
+  const largeArc = end - start > 180 ? 1 : 0;
+  return `M ${outerStart.x} ${outerStart.y} A ${outerRadius} ${outerRadius} 0 ${largeArc} 1 ${outerEnd.x} ${outerEnd.y} L ${innerEnd.x} ${innerEnd.y} A ${innerRadius} ${innerRadius} 0 ${largeArc} 0 ${innerStart.x} ${innerStart.y} Z`;
+};
+
+let angle = 0;
+const sectors = wheelAreas.map((area) => {
+  const sweep = (area.skills.length / total) * 360;
+  const start = angle + 1.5;
+  const end = angle + sweep - 1.5;
+  const labelPoint = point(139, angle + sweep / 2);
+  angle += sweep;
+  return { ...area, path: sectorPath(start, end), labelPoint };
+});
+const first = wheelAreas[0];
+---
+
+<div class="skills-wheel" data-skill-wheel>
+  <div class="skills-wheel-visual">
+    <svg
+      viewBox="0 0 400 400"
+      role="img"
+      aria-label={
+        lang === "es"
+          ? "Rueda interactiva de habilidades"
+          : "Interactive skills wheel"
+      }
+    >
+      <circle class="skills-orbit" cx="200" cy="200" r="194"></circle>
+      {sectors.map((area, index) => (
+        <g>
+          <path
+            class="skill-sector"
+            d={area.path}
+            fill={area.color}
+            data-skill-key={area.key}
+            role="button"
+            tabindex="0"
+            aria-label={`${area.label}: ${area.skills.length}`}
+          />
+          <text
+            class="skill-sector-label"
+            x={area.labelPoint.x}
+            y={area.labelPoint.y}
+            text-anchor="middle"
+            dominant-baseline="middle"
+          >
+            {area.shortLabel}
+          </text>
+        </g>
+      ))}
+      <circle class="skills-core" cx="200" cy="200" r="72"></circle>
+      <text class="skills-core-title" x="200" y="195" text-anchor="middle">
+        {lang === "es" ? "HABILIDADES" : "SKILLS"}
+      </text>
+      <text class="skills-core-count" x="200" y="220" text-anchor="middle">
+        {total}
+      </text>
+    </svg>
+  </div>
+
+  <div class="skills-wheel-panel">
+    <div
+      class="skills-wheel-tabs"
+      aria-label={lang === "es" ? "Áreas de habilidades" : "Skill areas"}
+    >
+      {wheelAreas.map((area, index) => (
+        <button
+          type="button"
+          class:list={["skill-tab", { "is-active": index === 0 }]}
+          data-skill-key={area.key}
+          aria-pressed={index === 0 ? "true" : "false"}
+        >
+          <span style={`--skill-color:${area.color}`}></span>
+          {area.label}
+        </button>
+      ))}
+    </div>
+    <div class="skills-wheel-copy" aria-live="polite">
+      <h3 data-skill-title>{first.label}</h3>
+      <p data-skill-description>{first.description}</p>
+      <ul data-skill-list>
+        {first.skills.map((skill) => (
+          <li>{skill}</li>
+        ))}
+      </ul>
+    </div>
+  </div>
+  <script
+    type="application/json"
+    data-skill-data
+    set:html={JSON.stringify(wheelAreas)}
+  ></script>
+</div>
+
+<script>
+  document
+    .querySelectorAll<HTMLElement>("[data-skill-wheel]")
+    .forEach((wheel) => {
+      const data = wheel.querySelector<HTMLScriptElement>("[data-skill-data]");
+      if (!data) return;
+      const areas = JSON.parse(data.textContent || "[]");
+      const select = (key: string) => {
+        const area = areas.find((item: { key: string }) => item.key === key);
+        if (!area) return;
+        wheel
+          .querySelectorAll<HTMLElement>("[data-skill-key]")
+          .forEach((item) => {
+            const active = item.dataset.skillKey === key;
+            item.classList.toggle("is-active", active);
+            if (item instanceof HTMLButtonElement)
+              item.setAttribute("aria-pressed", String(active));
+          });
+        const title = wheel.querySelector<HTMLElement>("[data-skill-title]");
+        const description = wheel.querySelector<HTMLElement>(
+          "[data-skill-description]",
+        );
+        const list = wheel.querySelector<HTMLUListElement>("[data-skill-list]");
+        if (title) title.textContent = area.label;
+        if (description) description.textContent = area.description;
+        if (list) {
+          list.replaceChildren(
+            ...area.skills.map((skill: string) => {
+              const item = document.createElement("li");
+              item.textContent = skill;
+              return item;
+            }),
+          );
+        }
+      };
+      wheel
+        .querySelectorAll<HTMLElement>("[data-skill-key]")
+        .forEach((item) => {
+          item.addEventListener("click", () =>
+            select(item.dataset.skillKey || ""),
+          );
+          item.addEventListener("keydown", (event) => {
+            if (event.key === "Enter" || event.key === " ") {
+              event.preventDefault();
+              select(item.dataset.skillKey || "");
+            }
+          });
+        });
+    });
+</script>
