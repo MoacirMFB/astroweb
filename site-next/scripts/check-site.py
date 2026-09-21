@@ -77,6 +77,9 @@ for prefix in ['', 'es/']:
     assert home.count('class="satellite-toggle') == 21
     assert home.count('class="research-feature"') == 3
     assert 'class="research-grid"' in home
+    assert '<polyline' not in home
+    assert 'aged 15' not in home
+    assert '15 a 18 años' not in home
     research = (ROOT / prefix / 'research/index.html').read_text()
     assert 'bennu-spin.mp4' in research
     assert research.count('class="publication-list"') == 1

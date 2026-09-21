@@ -188,14 +188,18 @@ const links = [
           previousScroll = scrollY;
           previousTime = now;
           if (trails && speed > .05) {
-            const offset = -((scrollY * 0.22) % 575);
-            trails.style.opacity = String(.12 + speed * .62);
-            trails.style.transform = `translate3d(0, ${offset}px, 0) scaleY(${1 + speed * 2.6})`;
+            const direction = delta >= 0 ? -1 : 1;
+            trails.classList.add("is-warping");
+            trails.style.opacity = String(.3 + speed * .7);
+            trails.style.setProperty("--trail-length", `${16 + speed * 125}px`);
+            trails.style.setProperty("--warp-shift", `${direction * speed * 42}px`);
             clearTimeout(trailTimer);
             trailTimer = window.setTimeout(() => {
+              trails.classList.remove("is-warping");
               trails.style.opacity = "0";
-              trails.style.transform = `translate3d(0, ${offset}px, 0) scaleY(1)`;
-            }, 85);
+              trails.style.setProperty("--trail-length", "2px");
+              trails.style.setProperty("--warp-shift", "0px");
+            }, 180);
           }
           if (!scrollFrame) scrollFrame = requestAnimationFrame(updateStars);
         },

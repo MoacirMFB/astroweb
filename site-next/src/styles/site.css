@@ -688,7 +688,7 @@ em {
 }
 .project-card-heading {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 43px;
+  grid-template-columns: 48px minmax(0, 1fr);
   gap: 12px 20px;
   padding: 25px 27px 29px;
 }
@@ -793,7 +793,7 @@ em {
 .archive > summary {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   gap: 22px;
   cursor: pointer;
   list-style: none;
