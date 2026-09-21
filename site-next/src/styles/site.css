@@ -620,22 +620,22 @@ em {
   display: grid;
   grid-template-columns: 50px 1fr;
   gap: 20px;
-  padding: 30px 0;
+  padding: 14px 0;
   border-top: 1px solid var(--line);
 }
 .publication-list h3 {
-  font-size: 22px;
+  font-size: 19px;
   letter-spacing: -0.02em;
-  line-height: 1.4;
+  line-height: 1.32;
   max-width: 850px;
 }
 .publication-list p {
   font-size: 12px;
-  margin-top: 10px;
+  margin-top: 4px;
   max-width: 870px;
 }
 .publication-list .links {
-  margin-top: 15px;
+  margin-top: 7px;
 }
 .links {
   display: flex;
@@ -699,6 +699,11 @@ em {
   font-size: 19px;
   letter-spacing: -0.025em;
   line-height: 1.35;
+  color: #cfe7ff;
+  transition: color 180ms var(--ease);
+}
+.project-item summary:hover h2 {
+  color: var(--accent);
 }
 .project-detail {
   padding: 0 27px 25px;
@@ -775,13 +780,17 @@ em {
 .award-row h3 {
   font-size: 19px;
   letter-spacing: -0.02em;
-  line-height: 1.5;
+  line-height: 1.35;
 }
 .award-row p {
   font-size: 13px;
 }
 .award-row a:hover {
   color: var(--accent);
+}
+.award-row a,
+.archive-list a {
+  color: #a9d3ff;
 }
 .award-row.featured {
   color: var(--accent);
@@ -806,12 +815,21 @@ em {
 .archive[open] > summary {
   margin-bottom: 22px;
 }
+.publication-archive {
+  padding-block: 4px;
+}
+.publication-archive[open] > summary {
+  margin-bottom: 8px;
+}
+#publications .section-title {
+  margin-bottom: 14px;
+}
 .archive-list {
   padding: 0;
   list-style: none;
 }
 .archive-list > li {
-  padding: 18px 0;
+  padding: 10px 0;
   border-bottom: 1px solid var(--line);
   font-size: 14px;
 }
@@ -1364,7 +1382,7 @@ a.contact-email:has(> .social-icon) {
   display: grid;
   grid-template-columns: 1.08fr 1fr;
   gap: clamp(35px, 5vw, 75px);
-  align-items: start;
+  align-items: end;
   padding: 48px 0 20px;
 }
 .hero-about-copy {
@@ -1427,7 +1445,7 @@ a.contact-email:has(> .social-icon) {
   font-size: clamp(24px, 2.45vw, 35px);
 }
 .scroll-section #publications {
-  padding-block: 30px 70px;
+  padding-block: 24px 50px;
 }
 .scroll-section .bio {
   padding-block: 60px;
@@ -1441,8 +1459,8 @@ a.contact-email:has(> .social-icon) {
   font-weight: 500;
   line-height: 1.12;
   letter-spacing: -0.045em;
-  color: var(--text);
-  margin-block: 40px 65px;
+  color: #a9d3ff;
+  margin-block: 28px 20px;
 }
 .scroll-section .project-list {
   padding-bottom: 30px;
@@ -1546,19 +1564,26 @@ a.contact-email:has(> .social-icon) {
   border: 0;
 }
 .award-row {
-  padding-block: 26px;
+  padding-block: 10px;
+}
+#awards {
+  padding-block: 22px 18px;
+}
+#awards .section-title {
+  margin-bottom: 10px;
 }
 .archive {
   padding-block: 22px;
 }
 .archive > summary {
-  color: var(--text);
+  color: #a9d3ff;
 }
 .archive-list > li {
-  margin-bottom: 12px;
+  margin-bottom: 6px;
 }
 .text-link {
   border: 0;
+  color: var(--accent);
 }
 .text-link:hover {
   text-decoration: underline;
@@ -1571,6 +1596,7 @@ a.contact-email:has(> .social-icon) {
   padding: 13px 16px;
   background: #111c2a99;
   border-radius: 9px;
+  color: var(--accent);
 }
 .contact-notes {
   border: 0;
@@ -1639,6 +1665,7 @@ a.contact-email:has(> .social-icon) {
   font-size: 18px;
   line-height: 1.35;
   font-weight: 500;
+  color: #a9d3ff;
 }
 .media-card p {
   font-size: 13px;
@@ -1819,7 +1846,7 @@ a.contact-email:has(> .social-icon) {
 @media (max-width: 760px) {
   .scroll-section .about-sections > summary {
     font-size: 42px;
-    margin-block: 30px 45px;
+    margin-block: 24px 18px;
   }
   .skills-wheel-tabs {
     grid-template-columns: 1fr;
