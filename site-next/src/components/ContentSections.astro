@@ -5,6 +5,7 @@ import SpaceVisual from "./SpaceVisual.astro";
 import OrbitDiagram from "./OrbitDiagram.astro";
 import NearEarthOrbits from "./NearEarthOrbits.astro";
 import SkillsWheel from "./SkillsWheel.astro";
+import SatelliteToggle from "./SatelliteToggle.astro";
 import * as enData from "../data/en";
 import * as esData from "../data/es";
 interface Props {
@@ -69,48 +70,50 @@ const awardUrl =
       <header class="page-head">
         <Heading>{titles.research}</Heading>
       </header>
-      <section class="research-feature reverse" id="interception">
-        <OrbitDiagram lang={lang} />
-        <div>
-          <h2>{es ? "Intercepción de asteroides" : "Asteroid interception"}</h2>
-          <p>
-            {es
-              ? "Mi investigación se centra en el diseño de misiones de intercepción de asteroides, incluidas sus trayectorias y estrategias de control."
-              : "My research focuses on asteroid interception mission design, including trajectory design and control strategies."}
-          </p>
-          <a
-            class="text-link"
-            href="/publications/earth-moon-interceptor-issfd-2026/"
-          >
-            {es ? "Investigación" : "Research paper"}
-          </a>
-        </div>
-      </section>
-      <section class="research-feature" id="exploration">
-        <div>
-          <h2>{es ? "Exploración de asteroides" : "Asteroid exploration"}</h2>
-          <p>
-            {es
-              ? "Estudio trayectorias, navegación óptica y diseño de misiones para llegar a cuerpos pequeños y operar cerca de ellos."
-              : "I study trajectories, optical navigation, and mission design for reaching and operating near small bodies."}
-          </p>
-          <a class="text-link" href={`${base}#projects`}>
-            {es ? "Proyectos" : "Related projects"}
-          </a>
-        </div>
-        <SpaceVisual variant="spin" lang={lang} />
-      </section>
-      <section class="research-feature reverse" id="near-earth-orbits">
-        <NearEarthOrbits lang={lang} />
-        <div>
-          <h2>{es ? "Entorno cercano a la Tierra" : "Near-Earth neighborhood"}</h2>
-          <p>
-            {es
-              ? "Cien órbitas ilustrativas que atraviesan el vecindario orbital de la Tierra."
-              : "One hundred illustrative asteroid paths crossing Earth’s orbital neighborhood."}
-          </p>
-        </div>
-      </section>
+      <div class="research-grid">
+        <section class="research-feature" id="interception">
+          <OrbitDiagram lang={lang} />
+          <div>
+            <h2>{es ? "Intercepción de asteroides" : "Asteroid interception"}</h2>
+            <p>
+              {es
+                ? "Mi investigación se centra en el diseño de misiones de intercepción de asteroides, incluidas sus trayectorias y estrategias de control."
+                : "My research focuses on asteroid interception mission design, including trajectory design and control strategies."}
+            </p>
+            <a
+              class="text-link"
+              href="/publications/earth-moon-interceptor-issfd-2026/"
+            >
+              {es ? "Investigación" : "Research paper"}
+            </a>
+          </div>
+        </section>
+        <section class="research-feature" id="exploration">
+          <SpaceVisual variant="spin" lang={lang} />
+          <div>
+            <h2>{es ? "Exploración de asteroides" : "Asteroid exploration"}</h2>
+            <p>
+              {es
+                ? "Estudio trayectorias, navegación óptica y diseño de misiones para llegar a cuerpos pequeños y operar cerca de ellos."
+                : "I study trajectories, optical navigation, and mission design for reaching and operating near small bodies."}
+            </p>
+            <a class="text-link" href={`${base}#projects`}>
+              {es ? "Proyectos" : "Related projects"}
+            </a>
+          </div>
+        </section>
+        <section class="research-feature" id="near-earth-orbits">
+          <NearEarthOrbits lang={lang} />
+          <div>
+            <h2>{es ? "Entorno cercano a la Tierra" : "Near-Earth neighborhood"}</h2>
+            <p>
+              {es
+                ? "Cien órbitas ilustrativas que atraviesan el vecindario orbital de la Tierra."
+                : "One hundred illustrative asteroid paths crossing Earth’s orbital neighborhood."}
+            </p>
+          </div>
+        </section>
+      </div>
       <section class="section" id="publications">
         <div class="section-title">
           <div>
@@ -126,7 +129,8 @@ const awardUrl =
         </div>
         <details class="archive publication-archive">
           <summary>
-            {es ? "Ver las 10 publicaciones" : "View all 10 publications"}
+            <span>{es ? "Ver las 10 publicaciones" : "View all 10 publications"}</span>
+            <SatelliteToggle />
           </summary>
           <ol class="publication-list">
             {publications.map((pub, i) => {
@@ -186,9 +190,7 @@ const awardUrl =
               <div class="project-card-heading">
                 <span class="index">{project.year}</span>
                 <h2>{project.title}</h2>
-                <span class="expand" aria-hidden="true">
-                  +
-                </span>
+                <SatelliteToggle compact />
               </div>
             </summary>
             <div class="project-detail">
@@ -274,9 +276,12 @@ const awardUrl =
       )}
       <details class="about-sections archive">
         <summary>
-          {es
-            ? "Premios, formación y experiencia"
-            : "Awards, education & experience"}
+          <span>
+            {es
+              ? "Premios, formación y experiencia"
+              : "Awards, education & experience"}
+          </span>
+          <SatelliteToggle />
         </summary>
         <section class="section" id="awards">
           <div class="section-title">
@@ -314,9 +319,12 @@ const awardUrl =
           ))}
           <details class="archive">
             <summary>
-              {es
-                ? "Reconocimientos anteriores"
-                : "Earlier awards & recognition"}
+              <span>
+                {es
+                  ? "Reconocimientos anteriores"
+                  : "Earlier awards & recognition"}
+              </span>
+              <SatelliteToggle />
             </summary>
             <ul class="archive-list">
               {awards.slice(3).map((award) => (
@@ -371,9 +379,12 @@ const awardUrl =
           </a>
           <details class="archive" style="margin-top:30px">
             <summary>
-              {es
-                ? "Liderazgo y participación comunitaria"
-                : "Leadership & community"}
+              <span>
+                {es
+                  ? "Liderazgo y participación comunitaria"
+                  : "Leadership & community"}
+              </span>
+              <SatelliteToggle />
             </summary>
             <ul class="archive-list">
               {leadership.map((item) => (
@@ -391,9 +402,12 @@ const awardUrl =
           </details>
           <details class="archive" id="media-interviews">
             <summary>
-              {es
-                ? "Entrevistas, noticias y charlas"
-                : "Interviews, news & talks"}
+              <span>
+                {es
+                  ? "Entrevistas, noticias y charlas"
+                  : "Interviews, news & talks"}
+              </span>
+              <SatelliteToggle />
             </summary>
             {externalMediaCategories.map((category) => (
               <div class="media-category">

@@ -45,7 +45,7 @@ const links = [
     <slot name="head" />
   </head>
   <body>
-    <CosmicBackdrop lang={lang} progressive={page === "/"} />
+    <CosmicBackdrop />
     <a class="skip-link" href="#main">
       {es ? "Ir al contenido" : "Skip to content"}
     </a>
@@ -164,37 +164,40 @@ const links = [
       let paused = reduced.matches;
       const visible = new Set<HTMLVideoElement>();
       const stars = document.querySelector<HTMLElement>(".starfield");
-      const cosmicStages = [
-        ...document.querySelectorAll<HTMLElement>("[data-cosmic-stage]"),
-      ];
-      const cosmicTitle = document.querySelector<HTMLElement>("[data-cosmic-title]");
-      const cosmicDistance = document.querySelector<HTMLElement>("[data-cosmic-distance]");
-      const cosmicProgress = document.querySelector<HTMLElement>("[data-cosmic-progress]");
-      const stageCenters = [0, 0.2, 0.45, 0.7, 0.96];
+      const trails = document.querySelector<HTMLElement>(".star-trails");
+      const constellations = document.querySelector<SVGElement>(".constellations");
       let scrollFrame = 0;
+      let previousScroll = scrollY;
+      let previousTime = performance.now();
+      let trailTimer = 0;
       function updateStars() {
         scrollFrame = 0;
-        if (stars)
-          stars.style.transform = paused ? "none" : `translate3d(0, ${-((scrollY * 0.16) % 863)}px, 0)`;
-        if (!cosmicStages.length) return;
-        const maxScroll = Math.max(1, document.documentElement.scrollHeight - innerHeight);
-        const progress = Math.min(1, Math.max(0, scrollY / maxScroll));
-        let nearest = 0;
-        cosmicStages.forEach((stage, index) => {
-          const alpha = Math.max(0, 1 - Math.abs(progress - stageCenters[index]) / 0.26);
-          stage.style.opacity = String(alpha * 0.38);
-          stage.style.transform = `translateY(-50%) scale(${0.88 + alpha * 0.12})`;
-          if (Math.abs(progress - stageCenters[index]) < Math.abs(progress - stageCenters[nearest])) nearest = index;
-        });
-        if (cosmicTitle) cosmicTitle.textContent = cosmicStages[nearest].dataset.title || "";
-        if (cosmicDistance) cosmicDistance.textContent = cosmicStages[nearest].dataset.distance || "";
-        if (cosmicProgress) cosmicProgress.style.width = `${progress * 100}%`;
+        const offset = -((scrollY * 0.22) % 575);
+        if (stars) stars.style.transform = paused ? "none" : `translate3d(0, ${offset}px, 0)`;
+        if (constellations)
+          constellations.style.transform = paused ? "none" : `translate3d(0, ${offset * 0.28}px, 0)`;
       }
       addEventListener(
         "scroll",
         () => {
-          if (!scrollFrame && !paused)
-            scrollFrame = requestAnimationFrame(updateStars);
+          if (paused) return;
+          const now = performance.now();
+          const delta = scrollY - previousScroll;
+          const elapsed = Math.max(16, now - previousTime);
+          const speed = Math.min(1, Math.abs(delta) / elapsed / 1.4);
+          previousScroll = scrollY;
+          previousTime = now;
+          if (trails && speed > .05) {
+            const offset = -((scrollY * 0.22) % 575);
+            trails.style.opacity = String(.12 + speed * .62);
+            trails.style.transform = `translate3d(0, ${offset}px, 0) scaleY(${1 + speed * 2.6})`;
+            clearTimeout(trailTimer);
+            trailTimer = window.setTimeout(() => {
+              trails.style.opacity = "0";
+              trails.style.transform = `translate3d(0, ${offset}px, 0) scaleY(1)`;
+            }, 85);
+          }
+          if (!scrollFrame) scrollFrame = requestAnimationFrame(updateStars);
         },
         { passive: true },
       );

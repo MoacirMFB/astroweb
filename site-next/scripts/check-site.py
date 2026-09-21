@@ -70,8 +70,13 @@ for prefix in ['', 'es/']:
         assert f'id="{section}"' in home
     assert 'routeLegacyHash' not in home
     assert 'class="starfield"' in home
-    assert home.count(' data-cosmic-stage ') == 5
-    assert 'data-cosmic-progress' in home
+    assert 'data-starfield-root' in home
+    assert 'class="star-trails"' in home
+    assert 'class="constellations"' in home
+    assert 'data-cosmic-stage' not in home
+    assert home.count('class="satellite-toggle') == 21
+    assert home.count('class="research-feature"') == 3
+    assert 'class="research-grid"' in home
     research = (ROOT / prefix / 'research/index.html').read_text()
     assert 'bennu-spin.mp4' in research
     assert research.count('class="publication-list"') == 1
