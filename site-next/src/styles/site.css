@@ -320,10 +320,10 @@ em {
   height: 92%;
   inset: 4%;
   object-fit: contain;
-  mix-blend-mode: screen;
+  mix-blend-mode: normal;
   border-radius: 50%;
   z-index: 1;
-  filter: brightness(0.9);
+  filter: brightness(0.98) contrast(1.08);
 }
 .target-cross {
   font:

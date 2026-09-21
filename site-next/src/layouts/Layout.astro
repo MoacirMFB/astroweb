@@ -393,7 +393,18 @@ const links = [
         },
         { threshold: 0.05 },
       );
-      videos.forEach((video) => observer.observe(video));
+      videos.forEach((video) => {
+        video.addEventListener("error", () => {
+          const fallback = video.dataset.fallback;
+          if (!fallback || video.dataset.fallbackUsed) return;
+          video.dataset.fallbackUsed = "true";
+          video.src = fallback;
+          video.play().catch(() => {
+            /* The poster remains available when the fallback cannot autoplay. */
+          });
+        });
+        observer.observe(video);
+      });
       reduced.addEventListener("change", () => {
         paused = reduced.matches;
         syncMotion();

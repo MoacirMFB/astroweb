@@ -17,7 +17,7 @@ class Page(HTMLParser):
             assert attrs['id'] not in self.ids, f"Duplicate ID: {attrs['id']}"
             self.ids.add(attrs['id'])
         self.headings += tag == 'h1'
-        for attr in ['href', 'src', 'poster', 'data-src']:
+        for attr in ['href', 'src', 'poster', 'data-src', 'data-fallback']:
             if attrs.get(attr):
                 self.links.append(attrs[attr])
 
@@ -47,6 +47,7 @@ for prefix in ['', 'es/']:
     assert 'data-solar-system' in home
     assert home.count('class="nea-orbit"') == 100
     assert 'class="hobbies"' in home
+    assert 'bennu-spin-alpha.webm' in home
     assert 'bennu-spin.mp4' in home
     assert home.count('class="project-video"') == 9
     assert home.count('class="institution-logo"') == 4
@@ -80,6 +81,7 @@ for prefix in ['', 'es/']:
     assert 'aged 15' not in home
     assert '15 a 18 años' not in home
     research = (ROOT / prefix / 'research/index.html').read_text()
+    assert 'bennu-spin-alpha.webm' in research
     assert 'bennu-spin.mp4' in research
     assert research.count('class="publication-list"') == 1
     projects = (ROOT / prefix / 'projects/index.html').read_text()

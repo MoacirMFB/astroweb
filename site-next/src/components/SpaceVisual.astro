@@ -5,6 +5,15 @@ interface Props {
 }
 const { variant = "spin", lang = "en" } = Astro.props;
 const es = lang === "es";
+const videoSrc =
+  variant === "spin"
+    ? "/space/bennu-spin-alpha.webm"
+    : `/space/bennu-${variant}.mp4`;
+const posterSrc =
+  variant === "spin"
+    ? "/space/bennu-spin-alpha.png"
+    : `/space/bennu-${variant}.jpg`;
+const fallbackSrc = variant === "spin" ? "/space/bennu-spin.mp4" : undefined;
 ---
 
 <figure
@@ -17,8 +26,9 @@ const es = lang === "es";
     <video
       aria-hidden="true"
       data-space-video
-      data-src={`/space/bennu-${variant}.mp4`}
-      poster={`/space/bennu-${variant}.jpg`}
+      data-src={videoSrc}
+      data-fallback={fallbackSrc}
+      poster={posterSrc}
       muted
       loop
       playsinline
