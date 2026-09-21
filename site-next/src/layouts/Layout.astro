@@ -49,68 +49,70 @@ const links = [
     <a class="skip-link" href="#main">
       {es ? "Ir al contenido" : "Skip to content"}
     </a>
-    <header class="site-header wrap">
-      <a class="brand" href={base} aria-label="Moacir Fonseca Becker, home">
-        <svg viewBox="0 0 44 44" aria-hidden="true">
-          <circle cx="22" cy="22" r="10" />
-          <ellipse
-            cx="22"
-            cy="22"
-            rx="21"
-            ry="7"
-            transform="rotate(-40 22 22)"
-          />
-          <circle class="brand-dot" cx="36" cy="10" r="3" />
-        </svg>
-        <span>
-          Moacir<span class="brand-surname">Fonseca Becker</span>
-        </span>
-      </a>
-      <nav
-        class="desktop-nav"
-        aria-label={es ? "Navegación principal" : "Main navigation"}
-      >
-        {links.map(([slug, label]) => (
-          <a
-            href={`${base}#${slug}`}
-            aria-current={page === `/${slug}/` ? "page" : undefined}
-          >
-            {label}
-          </a>
-        ))}
-      </nav>
-      <div class="header-actions">
-        {!current.startsWith("/publications/") && (
-          <a
-            class="language"
-            href={alternate}
-            lang={es ? "en" : "es"}
-            aria-label={es ? "English version" : "Versión en español"}
-          >
-            {es ? "EN" : "ES"}
-          </a>
-        )}
-        <a
-          class="cv-link"
-          href="https://drive.google.com/file/d/1vwPQEI_GvsCVWiBJQ5meD143yRfUaTRw/view?usp=sharing"
-        >
-          CV
+    <header class="site-header">
+      <div class="site-header-inner wrap">
+        <a class="brand" href={base} aria-label="Moacir Fonseca Becker, home">
+          <svg viewBox="0 0 44 44" aria-hidden="true">
+            <circle cx="22" cy="22" r="10" />
+            <ellipse
+              cx="22"
+              cy="22"
+              rx="21"
+              ry="7"
+              transform="rotate(-40 22 22)"
+            />
+            <circle class="brand-dot" cx="36" cy="10" r="3" />
+          </svg>
+          <span>
+            Moacir<span class="brand-surname">Fonseca Becker</span>
+          </span>
         </a>
-        <details class="mobile-menu">
-          <summary>
-            {es ? "Menú" : "Menu"} <span aria-hidden="true">+</span>
-          </summary>
-          <nav aria-label={es ? "Navegación móvil" : "Mobile navigation"}>
-            {links.map(([slug, label]) => (
-              <a
-                href={`${base}#${slug}`}
-                aria-current={page === `/${slug}/` ? "page" : undefined}
-              >
-                {label}
-              </a>
-            ))}
-          </nav>
-        </details>
+        <nav
+          class="desktop-nav"
+          aria-label={es ? "Navegación principal" : "Main navigation"}
+        >
+          {links.map(([slug, label]) => (
+            <a
+              href={`${base}#${slug}`}
+              aria-current={page === `/${slug}/` ? "page" : undefined}
+            >
+              {label}
+            </a>
+          ))}
+        </nav>
+        <div class="header-actions">
+          {!current.startsWith("/publications/") && (
+            <a
+              class="language"
+              href={alternate}
+              lang={es ? "en" : "es"}
+              aria-label={es ? "English version" : "Versión en español"}
+            >
+              {es ? "EN" : "ES"}
+            </a>
+          )}
+          <a
+            class="cv-link"
+            href="https://drive.google.com/file/d/1vwPQEI_GvsCVWiBJQ5meD143yRfUaTRw/view?usp=sharing"
+          >
+            CV
+          </a>
+          <details class="mobile-menu">
+            <summary>
+              {es ? "Menú" : "Menu"} <span aria-hidden="true">+</span>
+            </summary>
+            <nav aria-label={es ? "Navegación móvil" : "Mobile navigation"}>
+              {links.map(([slug, label]) => (
+                <a
+                  href={`${base}#${slug}`}
+                  aria-current={page === `/${slug}/` ? "page" : undefined}
+                >
+                  {label}
+                </a>
+              ))}
+            </nav>
+          </details>
+        </div>
       </div>
     </header>
     <main id="main">
