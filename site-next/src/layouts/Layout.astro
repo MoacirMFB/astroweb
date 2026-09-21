@@ -194,7 +194,7 @@ const links = [
           y,
           z,
           previousZ: z,
-          size: .35 + travelRandom() * 1.2,
+          size: .32 + travelRandom() * 1.75,
           tone: travelRandom(),
         };
       }
@@ -206,16 +206,15 @@ const links = [
         travelCanvas.width = Math.round(travelWidth * pixelRatio);
         travelCanvas.height = Math.round(travelHeight * pixelRatio);
         travelContext.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
-        const starCount = travelWidth < 760 ? 130 : 200;
+        const starCount = travelWidth < 760 ? 150 : 230;
         if (travelStars.length !== starCount)
           travelStars = Array.from({ length: starCount }, () => makeTravelStar());
         drawTravel(0, 0);
       }
       function projectTravelStar(star: TravelStar, z: number) {
-        const field = Math.min(travelWidth, travelHeight) * .54;
         return {
-          x: travelWidth * .5 + (star.x / z) * field,
-          y: travelHeight * .48 + (star.y / z) * field,
+          x: travelWidth * .5 + (star.x / z) * travelWidth * .62,
+          y: travelHeight * .5 + (star.y / z) * travelHeight * .62,
         };
       }
       function drawTravel(speed: number, deltaTime: number) {
@@ -247,7 +246,7 @@ const links = [
           const stretch = 3 + speed * 9;
           const tailX = current.x + (previous.x - current.x) * stretch;
           const tailY = current.y + (previous.y - current.y) * stretch;
-          const apparentSize = Math.min(2.2, star.size * (.62 + 1 / star.z * .32));
+          const apparentSize = Math.min(3.4, star.size * (.62 + 1 / star.z * .34));
           if (moving) {
             travelContext.strokeStyle = outward
               ? `rgba(226, 115, 90, ${alpha})`
@@ -258,19 +257,22 @@ const links = [
             travelContext.lineTo(current.x, current.y);
             travelContext.stroke();
           }
-          const restingAlpha = Math.min(.78, .34 + (1.72 - star.z) * .24);
+          const restingAlpha = Math.min(.94, .48 + (1.72 - star.z) * .25);
           travelContext.fillStyle = moving
             ? outward
-              ? `rgba(255, 225, 211, ${Math.min(.68, alpha + .18)})`
-              : `rgba(218, 237, 255, ${Math.min(.68, alpha + .18)})`
+              ? `rgba(255, 225, 211, ${.55 + speed * .18})`
+              : `rgba(218, 237, 255, ${.55 + speed * .18})`
             : star.tone < .18
               ? `rgba(255, 231, 204, ${restingAlpha})`
               : star.tone > .78
                 ? `rgba(205, 229, 255, ${restingAlpha})`
                 : `rgba(241, 247, 255, ${restingAlpha})`;
+          travelContext.shadowBlur = apparentSize > 1.7 ? apparentSize * 1.8 : 0;
+          travelContext.shadowColor = star.tone < .18 ? "#ffd9af" : "#a9d2ff";
           travelContext.beginPath();
           travelContext.arc(current.x, current.y, apparentSize * .62, 0, Math.PI * 2);
           travelContext.fill();
+          travelContext.shadowBlur = 0;
         }
       }
       function animateTravel(time: number) {
