@@ -164,14 +164,95 @@ const links = [
       let paused = reduced.matches;
       const visible = new Set<HTMLVideoElement>();
       const stars = document.querySelector<HTMLElement>(".starfield");
-      const trails = document.querySelector<HTMLElement>(".star-trails");
+      const travelCanvas = document.querySelector<HTMLCanvasElement>("[data-star-travel]");
+      const travelContext = travelCanvas?.getContext("2d");
       const constellations = document.querySelector<SVGElement>(".constellations");
       const backdrop = document.querySelector<HTMLElement>(".cosmic-backdrop");
+      type TravelStar = { x: number; y: number; z: number; previousZ: number; size: number };
+      let travelStars: TravelStar[] = [];
+      let travelWidth = innerWidth;
+      let travelHeight = innerHeight;
+      let travelSeed = 92821;
       let scrollFrame = 0;
       let travelFrame = 0;
       let previousScroll = scrollY;
       let previousTime = performance.now();
+      let previousTravelTime = performance.now();
       let travelVelocity = 0;
+      const travelRandom = () =>
+        ((travelSeed = (travelSeed * 48271) % 2147483647) / 2147483647);
+      function makeTravelStar(z = .24 + travelRandom() * 1.46): TravelStar {
+        let x = (travelRandom() - .5) * 1.65;
+        let y = (travelRandom() - .5) * 1.65;
+        if (Math.abs(x) < .07 && Math.abs(y) < .07) x += .12;
+        return { x, y, z, previousZ: z, size: .45 + travelRandom() * .9 };
+      }
+      function resizeTravel() {
+        if (!travelCanvas || !travelContext) return;
+        const pixelRatio = Math.min(devicePixelRatio || 1, 2);
+        travelWidth = innerWidth;
+        travelHeight = innerHeight;
+        travelCanvas.width = Math.round(travelWidth * pixelRatio);
+        travelCanvas.height = Math.round(travelHeight * pixelRatio);
+        travelContext.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+        const starCount = travelWidth < 760 ? 150 : 240;
+        if (travelStars.length !== starCount)
+          travelStars = Array.from({ length: starCount }, () => makeTravelStar());
+      }
+      function clearTravel() {
+        travelContext?.clearRect(0, 0, travelWidth, travelHeight);
+        if (travelCanvas) travelCanvas.style.opacity = "0";
+      }
+      function projectTravelStar(star: TravelStar, z: number) {
+        const field = Math.min(travelWidth, travelHeight) * .54;
+        return {
+          x: travelWidth * .5 + (star.x / z) * field,
+          y: travelHeight * .48 + (star.y / z) * field,
+        };
+      }
+      function drawTravel(speed: number, deltaTime: number) {
+        if (!travelCanvas || !travelContext) return;
+        const outward = travelVelocity > 0;
+        const depthStep = travelVelocity * deltaTime * .0022;
+        const alpha = .34 + speed * .64;
+        travelContext.clearRect(0, 0, travelWidth, travelHeight);
+        travelContext.globalCompositeOperation = "lighter";
+        travelContext.lineCap = "round";
+        for (let index = 0; index < travelStars.length; index += 1) {
+          let star = travelStars[index];
+          star.previousZ = star.z;
+          star.z -= depthStep;
+          if (star.z < .13) star = travelStars[index] = makeTravelStar(1.68);
+          if (star.z > 1.72) star = travelStars[index] = makeTravelStar(.16);
+          const current = projectTravelStar(star, star.z);
+          const previous = projectTravelStar(star, star.previousZ);
+          if (
+            current.x < -travelWidth * .18 || current.x > travelWidth * 1.18 ||
+            current.y < -travelHeight * .18 || current.y > travelHeight * 1.18
+          ) {
+            travelStars[index] = makeTravelStar(outward ? 1.68 : .16);
+            continue;
+          }
+          const stretch = 6 + speed * 24;
+          const tailX = current.x + (previous.x - current.x) * stretch;
+          const tailY = current.y + (previous.y - current.y) * stretch;
+          const apparentSize = Math.min(2.8, star.size * (.82 + 1 / star.z * .4));
+          travelContext.strokeStyle = outward
+            ? `rgba(255, 105, 76, ${alpha})`
+            : `rgba(83, 166, 255, ${alpha})`;
+          travelContext.lineWidth = .7 + apparentSize;
+          travelContext.beginPath();
+          travelContext.moveTo(tailX, tailY);
+          travelContext.lineTo(current.x, current.y);
+          travelContext.stroke();
+          travelContext.fillStyle = outward ? "#fff0e8" : "#e7f4ff";
+          travelContext.beginPath();
+          travelContext.arc(current.x, current.y, apparentSize * .72, 0, Math.PI * 2);
+          travelContext.fill();
+        }
+        travelContext.globalCompositeOperation = "source-over";
+        travelCanvas.style.opacity = String(.44 + speed * .56);
+      }
       function updateStars() {
         scrollFrame = 0;
         const offset = -((scrollY * 0.22) % 575);
@@ -186,34 +267,32 @@ const links = [
             ? "none"
             : `translate3d(0, ${offset * 0.28}px, 0) scale(${1 + depth * .018})`;
       }
-      function animateTravel() {
+      function animateTravel(time: number) {
         travelFrame = 0;
-        if (!trails || !backdrop || paused) return;
+        if (!travelCanvas || !travelContext || !backdrop || paused || document.hidden) {
+          clearTravel();
+          return;
+        }
+        const deltaTime = Math.min(34, Math.max(8, time - previousTravelTime));
+        previousTravelTime = time;
         const speed = Math.min(1, Math.abs(travelVelocity));
-        if (speed < .012) {
+        if (speed < .008) {
           travelVelocity = 0;
-          trails.classList.remove("is-warping", "travel-outward", "travel-inward");
           backdrop.classList.remove("shift-red", "shift-blue");
-          trails.style.opacity = "0";
-          trails.style.transform = "scale(1)";
-          trails.style.setProperty("--trail-length", "2px");
           backdrop.style.setProperty("--shift-opacity", "0");
+          clearTravel();
           return;
         }
         const outward = travelVelocity > 0;
-        trails.classList.add("is-warping");
-        trails.classList.toggle("travel-outward", outward);
-        trails.classList.toggle("travel-inward", !outward);
         backdrop.classList.toggle("shift-red", outward);
         backdrop.classList.toggle("shift-blue", !outward);
         backdrop.style.setProperty("--shift-color", outward ? "#a9412c2e" : "#2b68c92b");
         backdrop.style.setProperty("--shift-opacity", String(.1 + speed * .42));
-        trails.style.opacity = String(.12 + speed * .5);
-        trails.style.transform = `scale(${1 + travelVelocity * .045})`;
-        trails.style.setProperty("--trail-length", `${7 + speed * 88}px`);
-        travelVelocity *= .95;
+        drawTravel(speed, deltaTime);
+        travelVelocity *= Math.pow(.965, deltaTime / 16.67);
         travelFrame = requestAnimationFrame(animateTravel);
       }
+      resizeTravel();
       addEventListener(
         "scroll",
         () => {
@@ -229,13 +308,23 @@ const links = [
               travelVelocity && Math.sign(travelVelocity) !== Math.sign(velocity)
                 ? velocity
                 : travelVelocity * .32 + velocity * .68;
-            if (!travelFrame) travelFrame = requestAnimationFrame(animateTravel);
+            if (!travelFrame) {
+              previousTravelTime = now;
+              travelFrame = requestAnimationFrame(animateTravel);
+            }
           }
           if (!scrollFrame) scrollFrame = requestAnimationFrame(updateStars);
         },
         { passive: true },
       );
-      addEventListener("resize", updateStars, { passive: true });
+      addEventListener(
+        "resize",
+        () => {
+          updateStars();
+          resizeTravel();
+        },
+        { passive: true },
+      );
       document.querySelectorAll(".mobile-menu a").forEach((link) =>
         link.addEventListener("click", () => {
           link.closest("details")?.removeAttribute("open");
@@ -262,14 +351,13 @@ const links = [
       function syncMotion() {
         updateStars();
         document.documentElement.dataset.motion = paused ? "off" : "on";
-        if (paused && trails && backdrop) {
+        if (paused && backdrop) {
           travelVelocity = 0;
           if (travelFrame) cancelAnimationFrame(travelFrame);
           travelFrame = 0;
-          trails.classList.remove("is-warping", "travel-outward", "travel-inward");
           backdrop.classList.remove("shift-red", "shift-blue");
-          trails.removeAttribute("style");
           backdrop.style.setProperty("--shift-opacity", "0");
+          clearTravel();
         }
         videos.forEach((video) => {
           if (paused || document.hidden || !visible.has(video)) {

@@ -71,7 +71,7 @@ for prefix in ['', 'es/']:
     assert 'routeLegacyHash' not in home
     assert 'class="starfield"' in home
     assert 'data-starfield-root' in home
-    assert 'class="star-trails"' in home
+    assert 'data-star-travel' in home
     assert 'class="constellations"' in home
     assert 'data-cosmic-stage' not in home
     assert home.count('class="satellite-toggle') == 21
