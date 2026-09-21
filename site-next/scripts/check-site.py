@@ -69,10 +69,9 @@ for prefix in ['', 'es/']:
     for section in ['research', 'projects', 'about', 'contact', 'publications', 'awards']:
         assert f'id="{section}"' in home
     assert 'routeLegacyHash' not in home
-    assert 'class="starfield"' in home
     assert 'data-starfield-root' in home
     assert 'data-star-travel' in home
-    assert 'class="constellations"' in home
+    assert 'class="constellations"' not in home
     assert 'data-cosmic-stage' not in home
     assert home.count('class="satellite-toggle') == 21
     assert home.count('class="research-feature"') == 3

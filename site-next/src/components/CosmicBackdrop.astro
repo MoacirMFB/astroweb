@@ -1,40 +1,5 @@
----
-const constellations = [
-  {
-    points: "145,720 220,682 294,704 365,675 430,618 504,603 558,650",
-  },
-  {
-    points: "172,176 230,126 293,174 360,112 430,166",
-  },
-  {
-    points: "770,122 814,205 855,290",
-    cross: "741,218 814,205 910,185",
-  },
-  {
-    points: "1132,410 1190,470 1248,446 1292,526 1230,586 1160,548 1190,470",
-    cross: "1175,505 1216,512 1257,518",
-  },
-] as const;
-
----
-
 <div class="cosmic-backdrop" data-starfield-root aria-hidden="true">
-  <div class="starfield"></div>
   <canvas class="star-travel" data-star-travel></canvas>
-  <svg class="constellations" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice">
-    {constellations.map((constellation) => (
-      <g>
-        {constellation.points.split(" ").map((point) => {
-          const [cx, cy] = point.split(",");
-          return <circle cx={cx} cy={cy} r="1.35" />;
-        })}
-        {constellation.cross?.split(" ").map((point) => {
-          const [cx, cy] = point.split(",");
-          return <circle cx={cx} cy={cy} r="1.15" />;
-        })}
-      </g>
-    ))}
-  </svg>
 </div>
 
 <style>
@@ -60,57 +25,16 @@ const constellations = [
   .cosmic-backdrop.shift-blue::after {
     opacity: var(--shift-opacity, 0);
   }
-  .starfield {
-    position: absolute;
-    inset: -1000px 0;
-    background:
-      url("/space/stars.svg") repeat center top / 920px 575px,
-      url("/space/stars.svg") repeat 313px 187px / 1270px 794px;
-    will-change: transform;
-    opacity: .84;
-    filter: brightness(1.65) drop-shadow(0 0 1px #79baff66);
-  }
   .star-travel {
     position: absolute;
     inset: 0;
     width: 100%;
     height: 100%;
-    opacity: 0;
-    transition: opacity 500ms ease;
-    will-change: opacity;
-  }
-  .constellations {
-    position: absolute;
-    inset: -5%;
-    width: 110%;
-    height: 110%;
-    overflow: visible;
-    opacity: .62;
-    will-change: transform;
-  }
-  .constellations circle {
-    fill: #e7f4ff;
     opacity: .76;
-    filter: drop-shadow(0 0 2px #79baff99);
-  }
-  @media (max-width: 760px) {
-    .starfield {
-      background-size: 760px 475px, 980px 613px;
-    }
-    .constellations {
-      width: 150%;
-      left: -25%;
-    }
   }
   @media (prefers-reduced-motion: reduce) {
-    .starfield,
-    .star-travel,
-    .constellations {
-      transform: none !important;
-      will-change: auto;
-    }
     .star-travel {
-      display: none;
+      transform: none !important;
     }
   }
 </style>
