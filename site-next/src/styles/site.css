@@ -24,6 +24,11 @@ body {
   isolation: isolate;
   background: radial-gradient(ellipse at 85% 12%, #10284440, transparent 48%);
 }
+main,
+.site-footer {
+  position: relative;
+  z-index: 1;
+}
 ::selection {
   background: var(--accent);
   color: var(--bg);

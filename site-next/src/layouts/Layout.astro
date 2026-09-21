@@ -214,9 +214,9 @@ const links = [
         if (!travelCanvas || !travelContext) return;
         const outward = travelVelocity > 0;
         const depthStep = travelVelocity * deltaTime * .0022;
-        const alpha = .34 + speed * .64;
+        const alpha = .18 + speed * .28;
         travelContext.clearRect(0, 0, travelWidth, travelHeight);
-        travelContext.globalCompositeOperation = "lighter";
+        travelContext.globalCompositeOperation = "source-over";
         travelContext.lineCap = "round";
         for (let index = 0; index < travelStars.length; index += 1) {
           let star = travelStars[index];
@@ -233,25 +233,26 @@ const links = [
             travelStars[index] = makeTravelStar(outward ? 1.68 : .16);
             continue;
           }
-          const stretch = 6 + speed * 24;
+          const stretch = 5 + speed * 18;
           const tailX = current.x + (previous.x - current.x) * stretch;
           const tailY = current.y + (previous.y - current.y) * stretch;
-          const apparentSize = Math.min(2.8, star.size * (.82 + 1 / star.z * .4));
+          const apparentSize = Math.min(1.9, star.size * (.64 + 1 / star.z * .3));
           travelContext.strokeStyle = outward
-            ? `rgba(255, 105, 76, ${alpha})`
-            : `rgba(83, 166, 255, ${alpha})`;
-          travelContext.lineWidth = .7 + apparentSize;
+            ? `rgba(226, 115, 90, ${alpha})`
+            : `rgba(98, 158, 224, ${alpha})`;
+          travelContext.lineWidth = .3 + apparentSize * .62;
           travelContext.beginPath();
           travelContext.moveTo(tailX, tailY);
           travelContext.lineTo(current.x, current.y);
           travelContext.stroke();
-          travelContext.fillStyle = outward ? "#fff0e8" : "#e7f4ff";
+          travelContext.fillStyle = outward
+            ? `rgba(255, 225, 211, ${Math.min(.68, alpha + .18)})`
+            : `rgba(218, 237, 255, ${Math.min(.68, alpha + .18)})`;
           travelContext.beginPath();
-          travelContext.arc(current.x, current.y, apparentSize * .72, 0, Math.PI * 2);
+          travelContext.arc(current.x, current.y, apparentSize * .55, 0, Math.PI * 2);
           travelContext.fill();
         }
-        travelContext.globalCompositeOperation = "source-over";
-        travelCanvas.style.opacity = String(.44 + speed * .56);
+        travelCanvas.style.opacity = String(.28 + speed * .32);
       }
       function updateStars() {
         scrollFrame = 0;
@@ -287,7 +288,7 @@ const links = [
         backdrop.classList.toggle("shift-red", outward);
         backdrop.classList.toggle("shift-blue", !outward);
         backdrop.style.setProperty("--shift-color", outward ? "#a9412c2e" : "#2b68c92b");
-        backdrop.style.setProperty("--shift-opacity", String(.1 + speed * .42));
+        backdrop.style.setProperty("--shift-opacity", String(.06 + speed * .18));
         drawTravel(speed, deltaTime);
         travelVelocity *= Math.pow(.965, deltaTime / 16.67);
         travelFrame = requestAnimationFrame(animateTravel);
