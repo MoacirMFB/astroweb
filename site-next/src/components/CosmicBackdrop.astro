@@ -19,10 +19,15 @@ const constellations = [
 let seed = 7319;
 const random = () => ((seed = (seed * 48271) % 2147483647) / 2147483647);
 const warpStars = Array.from({ length: 96 }, (_, index) => ({
-  left: `${(random() * 100).toFixed(2)}%`,
-  top: `${(random() * 100).toFixed(2)}%`,
+  left: random() * 100,
+  top: random() * 100,
   size: `${(0.45 + random() * 0.75).toFixed(2)}px`,
   delay: `${(index % 9) * -18}ms`,
+})).map((star) => ({
+  ...star,
+  left: `${star.left.toFixed(2)}%`,
+  top: `${star.top.toFixed(2)}%`,
+  angle: `${(Math.atan2(star.top - 50, star.left - 50) * 180 / Math.PI).toFixed(2)}deg`,
 }));
 ---
 
@@ -31,7 +36,7 @@ const warpStars = Array.from({ length: 96 }, (_, index) => ({
   <div class="star-trails">
     {warpStars.map((star) => (
       <i
-        style={`--left:${star.left};--top:${star.top};--star-size:${star.size};--delay:${star.delay}`}
+        style={`--left:${star.left};--top:${star.top};--star-size:${star.size};--delay:${star.delay};--travel-angle:${star.angle}`}
       ></i>
     ))}
   </div>
@@ -62,6 +67,18 @@ const warpStars = Array.from({ length: 96 }, (_, index) => ({
       radial-gradient(ellipse at 82% 18%, #12305245, transparent 48%),
       radial-gradient(ellipse at 16% 72%, #10253e2d, transparent 42%);
   }
+  .cosmic-backdrop::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    background: radial-gradient(circle at 50% 48%, transparent 18%, var(--shift-color, transparent) 100%);
+    transition: opacity 650ms ease;
+  }
+  .cosmic-backdrop.shift-red::after,
+  .cosmic-backdrop.shift-blue::after {
+    opacity: var(--shift-opacity, 0);
+  }
   .starfield {
     position: absolute;
     inset: -1000px 0;
@@ -76,31 +93,62 @@ const warpStars = Array.from({ length: 96 }, (_, index) => ({
     position: absolute;
     inset: 0;
     opacity: 0;
-    transition: opacity 900ms ease;
+    transform-origin: 50% 48%;
+    transition:
+      opacity 700ms ease,
+      transform 700ms cubic-bezier(.16, .72, .25, 1);
   }
   .star-trails.is-warping {
-    transition-duration: 80ms;
+    transition-duration: 70ms;
   }
   .star-trails i {
     position: absolute;
     left: var(--left);
     top: var(--top);
     width: var(--star-size);
-    height: var(--trail-length, 2px);
-    border-radius: 999px;
-    background: linear-gradient(to bottom, #f4faff 0 1px, #9dccffb8 12%, #79baff4d 52%, transparent 100%);
-    box-shadow: 0 0 3px #9dccff80;
-    transform: translateY(var(--warp-shift, 0));
-    transform-origin: center top;
+    height: var(--star-size);
+    border-radius: 50%;
+    background: #f4faff;
+    box-shadow: 0 0 2px #dceeffb3;
+    transform: translate(-50%, -50%);
+    will-change: transform;
     transition:
-      height 850ms cubic-bezier(.16, .72, .25, 1),
-      transform 850ms cubic-bezier(.16, .72, .25, 1);
+      background 180ms ease,
+      box-shadow 180ms ease;
     transition-delay: var(--delay);
   }
-  .star-trails.trails-upward i {
-    background: linear-gradient(to top, #f4faff 0 1px, #9dccffb8 12%, #79baff4d 52%, transparent 100%);
-    transform: translateY(calc(var(--warp-shift, 0px) - var(--trail-length, 2px)));
-    transform-origin: center bottom;
+  .star-trails i::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    right: 50%;
+    width: var(--trail-length, 2px);
+    height: max(1px, var(--star-size));
+    border-radius: 999px;
+    background: linear-gradient(to right, transparent, #d8eaff6b 52%, #f4faff 100%);
+    transform: translateY(-50%) rotate(var(--travel-angle));
+    transform-origin: right center;
+    transition:
+      width 700ms cubic-bezier(.16, .72, .25, 1),
+      background 180ms ease;
+    transition-delay: var(--delay);
+  }
+  .star-trails.travel-outward i {
+    background: #fff1e9;
+    box-shadow: 0 0 3px #ff755a99;
+  }
+  .star-trails.travel-outward i::after {
+    background: linear-gradient(to right, transparent, #da4c4652 48%, #ff9a77b8 80%, #fff1e9 100%);
+  }
+  .star-trails.travel-inward i {
+    background: #eaf5ff;
+    box-shadow: 0 0 3px #64a7ff99;
+  }
+  .star-trails.travel-inward i::after {
+    left: 50%;
+    right: auto;
+    background: linear-gradient(to right, #eaf5ff 0%, #72b8ffb8 20%, #356dff52 52%, transparent 100%);
+    transform-origin: left center;
   }
   .constellations {
     position: absolute;

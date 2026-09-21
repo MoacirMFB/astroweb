@@ -166,16 +166,53 @@ const links = [
       const stars = document.querySelector<HTMLElement>(".starfield");
       const trails = document.querySelector<HTMLElement>(".star-trails");
       const constellations = document.querySelector<SVGElement>(".constellations");
+      const backdrop = document.querySelector<HTMLElement>(".cosmic-backdrop");
       let scrollFrame = 0;
+      let travelFrame = 0;
       let previousScroll = scrollY;
       let previousTime = performance.now();
-      let trailTimer = 0;
+      let travelVelocity = 0;
       function updateStars() {
         scrollFrame = 0;
         const offset = -((scrollY * 0.22) % 575);
-        if (stars) stars.style.transform = paused ? "none" : `translate3d(0, ${offset}px, 0)`;
+        const scrollRange = Math.max(1, document.documentElement.scrollHeight - innerHeight);
+        const depth = Math.min(1, Math.max(0, scrollY / scrollRange));
+        if (stars)
+          stars.style.transform = paused
+            ? "none"
+            : `translate3d(0, ${offset}px, 0) scale(${1 + depth * .055})`;
         if (constellations)
-          constellations.style.transform = paused ? "none" : `translate3d(0, ${offset * 0.28}px, 0)`;
+          constellations.style.transform = paused
+            ? "none"
+            : `translate3d(0, ${offset * 0.28}px, 0) scale(${1 + depth * .018})`;
+      }
+      function animateTravel() {
+        travelFrame = 0;
+        if (!trails || !backdrop || paused) return;
+        const speed = Math.min(1, Math.abs(travelVelocity));
+        if (speed < .012) {
+          travelVelocity = 0;
+          trails.classList.remove("is-warping", "travel-outward", "travel-inward");
+          backdrop.classList.remove("shift-red", "shift-blue");
+          trails.style.opacity = "0";
+          trails.style.transform = "scale(1)";
+          trails.style.setProperty("--trail-length", "2px");
+          backdrop.style.setProperty("--shift-opacity", "0");
+          return;
+        }
+        const outward = travelVelocity > 0;
+        trails.classList.add("is-warping");
+        trails.classList.toggle("travel-outward", outward);
+        trails.classList.toggle("travel-inward", !outward);
+        backdrop.classList.toggle("shift-red", outward);
+        backdrop.classList.toggle("shift-blue", !outward);
+        backdrop.style.setProperty("--shift-color", outward ? "#a9412c2e" : "#2b68c92b");
+        backdrop.style.setProperty("--shift-opacity", String(.1 + speed * .42));
+        trails.style.opacity = String(.12 + speed * .5);
+        trails.style.transform = `scale(${1 + travelVelocity * .045})`;
+        trails.style.setProperty("--trail-length", `${7 + speed * 88}px`);
+        travelVelocity *= .95;
+        travelFrame = requestAnimationFrame(animateTravel);
       }
       addEventListener(
         "scroll",
@@ -184,23 +221,15 @@ const links = [
           const now = performance.now();
           const delta = scrollY - previousScroll;
           const elapsed = Math.max(16, now - previousTime);
-          const speed = Math.min(1, Math.abs(delta) / elapsed / 1.4);
+          const velocity = Math.max(-1, Math.min(1, delta / elapsed / .32));
           previousScroll = scrollY;
           previousTime = now;
-          if (trails && speed > .05) {
-            const direction = delta >= 0 ? -1 : 1;
-            trails.classList.add("is-warping");
-            trails.classList.toggle("trails-upward", delta >= 0);
-            trails.style.opacity = String(.12 + speed * .3);
-            trails.style.setProperty("--trail-length", `${7 + speed * 48}px`);
-            trails.style.setProperty("--warp-shift", `${direction * speed * 22}px`);
-            clearTimeout(trailTimer);
-            trailTimer = window.setTimeout(() => {
-              trails.classList.remove("is-warping");
-              trails.style.opacity = "0";
-              trails.style.setProperty("--trail-length", "2px");
-              trails.style.setProperty("--warp-shift", "0px");
-            }, 180);
+          if (Math.abs(velocity) > .025) {
+            travelVelocity =
+              travelVelocity && Math.sign(travelVelocity) !== Math.sign(velocity)
+                ? velocity
+                : travelVelocity * .32 + velocity * .68;
+            if (!travelFrame) travelFrame = requestAnimationFrame(animateTravel);
           }
           if (!scrollFrame) scrollFrame = requestAnimationFrame(updateStars);
         },
@@ -233,6 +262,15 @@ const links = [
       function syncMotion() {
         updateStars();
         document.documentElement.dataset.motion = paused ? "off" : "on";
+        if (paused && trails && backdrop) {
+          travelVelocity = 0;
+          if (travelFrame) cancelAnimationFrame(travelFrame);
+          travelFrame = 0;
+          trails.classList.remove("is-warping", "travel-outward", "travel-inward");
+          backdrop.classList.remove("shift-red", "shift-blue");
+          trails.removeAttribute("style");
+          backdrop.style.setProperty("--shift-opacity", "0");
+        }
         videos.forEach((video) => {
           if (paused || document.hidden || !visible.has(video)) {
             video.pause();
