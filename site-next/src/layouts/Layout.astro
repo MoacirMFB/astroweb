@@ -190,9 +190,10 @@ const links = [
           if (trails && speed > .05) {
             const direction = delta >= 0 ? -1 : 1;
             trails.classList.add("is-warping");
-            trails.style.opacity = String(.3 + speed * .7);
-            trails.style.setProperty("--trail-length", `${16 + speed * 125}px`);
-            trails.style.setProperty("--warp-shift", `${direction * speed * 42}px`);
+            trails.classList.toggle("trails-upward", delta >= 0);
+            trails.style.opacity = String(.12 + speed * .3);
+            trails.style.setProperty("--trail-length", `${7 + speed * 48}px`);
+            trails.style.setProperty("--warp-shift", `${direction * speed * 22}px`);
             clearTimeout(trailTimer);
             trailTimer = window.setTimeout(() => {
               trails.classList.remove("is-warping");
