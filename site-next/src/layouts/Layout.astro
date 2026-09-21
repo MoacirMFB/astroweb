@@ -220,7 +220,7 @@ const links = [
       function drawTravel(speed: number, deltaTime: number) {
         if (!travelCanvas || !travelContext) return;
         const moving = speed >= .008 && deltaTime > 0;
-        const outward = travelVelocity > 0;
+        const approaching = travelVelocity > 0;
         const depthStep = moving ? travelVelocity * deltaTime * .0022 : 0;
         const alpha = .07 + speed * .11;
         travelContext.clearRect(0, 0, travelWidth, travelHeight);
@@ -239,7 +239,7 @@ const links = [
             current.y < -travelHeight * .18 || current.y > travelHeight * 1.18
           ) {
             travelStars[index] = makeTravelStar(
-              moving ? (outward ? 1.68 : .16) : .32 + travelRandom() * 1.2,
+              moving ? (approaching ? 1.68 : .16) : .32 + travelRandom() * 1.2,
             );
             continue;
           }
@@ -248,9 +248,9 @@ const links = [
           const tailY = current.y + (previous.y - current.y) * stretch;
           const apparentSize = Math.min(3.4, star.size * (.62 + 1 / star.z * .34));
           if (moving) {
-            travelContext.strokeStyle = outward
-              ? `rgba(226, 115, 90, ${alpha})`
-              : `rgba(98, 158, 224, ${alpha})`;
+            travelContext.strokeStyle = approaching
+              ? `rgba(77, 169, 255, ${alpha * 1.18})`
+              : `rgba(226, 104, 82, ${alpha})`;
             travelContext.lineWidth = .18 + apparentSize * .32;
             travelContext.beginPath();
             travelContext.moveTo(tailX, tailY);
@@ -259,16 +259,18 @@ const links = [
           }
           const restingAlpha = Math.min(.94, .48 + (1.72 - star.z) * .25);
           travelContext.fillStyle = moving
-            ? outward
-              ? `rgba(255, 225, 211, ${.55 + speed * .18})`
-              : `rgba(218, 237, 255, ${.55 + speed * .18})`
+            ? approaching
+              ? `rgba(202, 231, 255, ${.6 + speed * .2})`
+              : `rgba(255, 218, 204, ${.55 + speed * .18})`
             : star.tone < .18
               ? `rgba(255, 231, 204, ${restingAlpha})`
               : star.tone > .78
                 ? `rgba(205, 229, 255, ${restingAlpha})`
                 : `rgba(241, 247, 255, ${restingAlpha})`;
           travelContext.shadowBlur = apparentSize > 1.7 ? apparentSize * 1.8 : 0;
-          travelContext.shadowColor = star.tone < .18 ? "#ffd9af" : "#a9d2ff";
+          travelContext.shadowColor = moving
+            ? approaching ? "#59b4ff" : "#ff8a6b"
+            : star.tone < .18 ? "#ffd9af" : "#a9d2ff";
           travelContext.beginPath();
           travelContext.arc(current.x, current.y, apparentSize * .62, 0, Math.PI * 2);
           travelContext.fill();
@@ -294,11 +296,11 @@ const links = [
           drawTravel(0, 0);
           return;
         }
-        const outward = travelVelocity > 0;
-        backdrop.classList.toggle("shift-red", outward);
-        backdrop.classList.toggle("shift-blue", !outward);
-        backdrop.style.setProperty("--shift-color", outward ? "#a9412c2e" : "#2b68c92b");
-        backdrop.style.setProperty("--shift-opacity", String(.04 + speed * .1));
+        const approaching = travelVelocity > 0;
+        backdrop.classList.toggle("shift-blue", approaching);
+        backdrop.classList.toggle("shift-red", !approaching);
+        backdrop.style.setProperty("--shift-color", approaching ? "#287ed656" : "#a9412c38");
+        backdrop.style.setProperty("--shift-opacity", String(.05 + speed * .12));
         drawTravel(speed, deltaTime);
         travelVelocity *= Math.pow(.965, deltaTime / 16.67);
         travelFrame = requestAnimationFrame(animateTravel);
